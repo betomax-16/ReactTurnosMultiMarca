@@ -61,5 +61,51 @@ export const routes = [
                 component: Ad,
             }
         ],
-    }
+    },
+    {
+        path: '/brands/:idBrand/login',
+        component: LoginSuperAdmin,
+    },
+    {
+        path: '/brands/:idBrand/panel/*',
+        component: Panel,
+        routes: [    
+            {
+                path: '/',
+                component: Home,
+            },
+            {
+                path: '/branches',
+                component: Branch,
+            },
+            {
+                path: '/users',
+                component: User,
+            },
+            {
+                path: '/modules',
+                component: Module,
+            },
+            {
+                path: '/areas',
+                component: Area,
+            },
+            {
+                path: '/turns/current',
+                component: CurrentTurn,
+            },
+            {
+                path: '/turns/history',
+                component: HistoryTurn,
+            },
+            {
+                path: '/turns/report',
+                component: Report,
+            },
+            {
+                path: '/ads',
+                component: Ad,
+            }
+        ],
+    },
 ];

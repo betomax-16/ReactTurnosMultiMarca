@@ -2,23 +2,23 @@ import { DivContainer, DivHeader, DivBody, FormLogin, Button, Logo } from "./sty
 import { useLogin } from "../../../hooks/hookLogin";
 import { useForm, Controller } from "react-hook-form";
 import TextField from '@mui/material/TextField';
-import logo from '../../../assets/img/logo-aries.png';
 import { RequireNoAuth } from "../../../components/RequireNoAuth";
 
 export function LoginSuperAdmin() {
-    const [ login ] = useLogin();
+    const logo = process.env.PUBLIC_URL + '/logo-aries.png';
+    const [ login, brand ] = useLogin();
     const { control, handleSubmit, formState: { errors } } = useForm({defaultValues: { username: '', password: '' }});
     const onSubmit = data => login(data);
 
     return (
         <RequireNoAuth>
-            <DivContainer>
+            <DivContainer color={brand && brand.color ? brand.color : '#0e8b9e'}>
                 <FormLogin onSubmit={handleSubmit(onSubmit)}>
                     <DivHeader>
-                        <Logo src={logo} alt="logo"></Logo>
+                        <Logo src={brand && brand.logo ? brand.logo : logo} alt="logo"></Logo>
                     </DivHeader>
                     <DivBody>
-                        <h1 style={{color: '#2a9aad'}}>Bienvenido</h1>
+                        <h1 style={{color: brand ? '#000' : '#2a9aad'}}>Bienvenido</h1>
                         <Controller
                             name="username"
                             control={control}
@@ -38,7 +38,7 @@ export function LoginSuperAdmin() {
                             rules={{ required: true }}
                         />
                         
-                        <Button type="submit" value="Acceder" />
+                        <Button color={brand && brand.color ? brand.color : '#a8ad00'} type="submit" value="Acceder" />
                     </DivBody>
                 </FormLogin>
             </DivContainer>

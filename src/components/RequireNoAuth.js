@@ -3,9 +3,10 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from 'react-redux';
 import { setAlertsList } from '../redux/splices/alertSlice';
 import { clearCurrentUser } from '../redux/splices/currentUserSlice';
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 export function RequireNoAuth({children}) {
+  const params = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const user = useSelector((state) => state.currentUser.user);
@@ -41,6 +42,12 @@ export function RequireNoAuth({children}) {
     switch (userAux.rol.toLowerCase()) {
       case 'super-admin':
           navigate('/panel/brands', {replace: true});
+        break;
+      case 'admin':
+          navigate(`/brands/${params.idBrand}/panel/branches`, {replace: true});
+        break;
+      case 'sub-admin':
+          navigate(`/brands/${params.idBrand}/panel/branches`, {replace: true});
         break;
       default:
           dispatch(clearCurrentUser());

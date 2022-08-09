@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import Tooltip from '@mui/material/Tooltip';
 import { RiBuilding2Fill } from "react-icons/ri";
 import { FaBuysellads, FaUsers } from "react-icons/fa";
@@ -9,18 +10,25 @@ import { HiDocumentReport } from "react-icons/hi";
 import { useMenu } from "../../../../hooks/hookMenu";
 import { Nav, ImgLogo, DivLogo, DivOptions, DivOption, LinkStyle, Icon, Title, SubMenu, DivSubOption } from "./styles";
 
-import logo from "../../../../assets/img/logo-aries.png";
-
 export function Menu() {
+    const logo = process.env.PUBLIC_URL + '/logo-aries.png';
     const [user, toggleTurn, setToggleTurn, logout, handlerOpenModalSucursal] = useMenu();
+    const [brand, setBrand] = useState(null);
+
+    useEffect(() =>{
+        const storageBrand = localStorage.getItem('brand');
+        if (storageBrand) {            
+            setBrand(JSON.parse(storageBrand));
+        }
+    }, []);
 
     return (
-        <Nav>
+        <Nav color={brand && brand.color ? brand.color : '#0e8b9e'}>
             <DivLogo>
-                <ImgLogo src={logo} alt="logo"></ImgLogo>
+                <ImgLogo src={brand && brand.logo ? brand.logo : logo} alt="logo"></ImgLogo>
             </DivLogo>
             <DivOptions>
-                {user && (user.rol === 'Super-Admin') && <LinkStyle to="/panel/brands">
+                {user && (user.rol === 'Super-Admin') && <LinkStyle color={brand && brand.color ? brand.color : '#0e8b9e'} to="/panel/brands">
                     <DivOption>
                         <Tooltip title="Marcas">
                             <Icon>
@@ -30,7 +38,7 @@ export function Menu() {
                         <Title>Marcas</Title>
                     </DivOption>
                 </LinkStyle>}
-                <LinkStyle to="/panel/branches">
+                <LinkStyle color={brand && brand.color ? brand.color : '#0e8b9e'} to="/panel/branches">
                     <DivOption>
                         <Tooltip title="Sucursales">
                             <Icon>
@@ -40,7 +48,7 @@ export function Menu() {
                         <Title>Sucursales</Title>
                     </DivOption>
                 </LinkStyle>
-                <LinkStyle to="/panel/users">
+                <LinkStyle color={brand && brand.color ? brand.color : '#0e8b9e'} to="/panel/users">
                     <DivOption>
                         <Tooltip title="Usuarios">
                             <Icon>
@@ -50,7 +58,7 @@ export function Menu() {
                         <Title>Usuarios</Title>
                     </DivOption>
                 </LinkStyle>
-                {user && (user.rol === 'Admin' || user.rol === 'Sub-Admin') && <LinkStyle to="/panel/modules">
+                {user && (user.rol === 'Admin' || user.rol === 'Sub-Admin') && <LinkStyle color={brand && brand.color ? brand.color : '#0e8b9e'} to="/panel/modules">
                     <DivOption>
                         <Tooltip title="Modulos">
                             <Icon>
@@ -60,7 +68,7 @@ export function Menu() {
                         <Title>Modulos</Title>
                     </DivOption>
                 </LinkStyle>}
-                {user && (user.rol === 'Admin' || user.rol === 'Sub-Admin') && <LinkStyle to="/panel/areas">
+                {user && (user.rol === 'Admin' || user.rol === 'Sub-Admin') && <LinkStyle color={brand && brand.color ? brand.color : '#0e8b9e'} to="/panel/areas">
                     <DivOption>
                         <Tooltip title="Areas">
                             <Icon>
@@ -80,7 +88,7 @@ export function Menu() {
                         <Title>Turnos</Title>
                     </DivOption>
                     <SubMenu show={toggleTurn}>
-                        {user && (user.rol === 'Admin' || user.rol === 'Sub-Admin') && <LinkStyle to="/panel/turns/current">
+                        {user && (user.rol === 'Admin' || user.rol === 'Sub-Admin') && <LinkStyle color={brand && brand.color ? brand.color : '#0e8b9e'} to="/panel/turns/current">
                             <DivSubOption>
                                 <Tooltip title="Turnos actuales">
                                     <Icon>
@@ -90,7 +98,7 @@ export function Menu() {
                                 <Title>Actuales</Title>
                             </DivSubOption>
                         </LinkStyle>}
-                        {user && (user.rol === 'Admin' || user.rol === 'Sub-Admin') && <LinkStyle to="/panel/turns/history">
+                        {user && (user.rol === 'Admin' || user.rol === 'Sub-Admin') && <LinkStyle color={brand && brand.color ? brand.color : '#0e8b9e'} to="/panel/turns/history">
                             <DivSubOption>
                                 <Tooltip title="Turnos Historicos">
                                     <Icon>
@@ -100,7 +108,7 @@ export function Menu() {
                                 <Title>Historicos</Title>
                             </DivSubOption>
                         </LinkStyle>}
-                        <LinkStyle to="/panel/turns/report">
+                        <LinkStyle color={brand && brand.color ? brand.color : '#0e8b9e'} to="/panel/turns/report">
                             <DivSubOption>
                                 <Tooltip title="Reportes">
                                     <Icon>
@@ -120,7 +128,7 @@ export function Menu() {
                         </DivSubOption>}
                     </SubMenu>
                 </div>
-                {user && (user.rol === 'Admin' || user.rol === 'Sub-Admin') && <LinkStyle to="/panel/ads">
+                {user && (user.rol === 'Admin' || user.rol === 'Sub-Admin') && <LinkStyle color={brand && brand.color ? brand.color : '#0e8b9e'} to="/panel/ads">
                     <DivOption>
                         <Tooltip title="Anuncios">
                             <Icon>

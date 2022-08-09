@@ -1,13 +1,14 @@
 import styled, {css} from "styled-components";
+import { invertColorText } from "../../../../utils/colorText";
 import { Link } from "react-router-dom";
 
 export const Nav = styled.nav`
     display: flex;
     flex-direction: column;
     height: 100%;
-    background-color: #05805e;
-    box-shadow: inset -7px 0px 20px #13664f;
-    color: white;
+    background: ${props => props.color};
+    box-shadow: inset -7px 0px 20px #52484a47;
+    color: ${props => invertColorText(props.color)};
     overflow: auto;
 `;
 
@@ -43,7 +44,7 @@ export const DivOptions = styled.div`
 `
 
 export const LinkStyle = styled(Link)`
-    color: white;
+    color: ${props => invertColorText(props.color)};
     text-decoration: none;
 `
 export const Icon = styled.div`
@@ -90,8 +91,7 @@ export const DivOption = styled.div`
     }
 
     &:hover {
-        background-color: #0774553d;
-        box-shadow: inset -2px 0px 20px #13664f;
+        box-shadow: 20px 20px 50px 10px #52484a47 inset;
     }
 `
 
@@ -133,7 +133,7 @@ export const DivSubOption = styled.div`
         position: absolute;
         width: 96px;
         height: 100%;
-        background-color: #7cff8a70;
+        background-color: #ffffff1c;
         left: -34px;
         top: 0px;
         border-radius: 14%;
@@ -156,8 +156,7 @@ export const DivSubOption = styled.div`
     }
 
     &:hover {
-        background-color: #0774553d;
-        box-shadow: inset -2px 0px 20px #13664f;
+        box-shadow: 20px 20px 50px 10px #52484a47 inset;
     }
 `
 

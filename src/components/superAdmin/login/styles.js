@@ -1,7 +1,8 @@
 import styled from "styled-components";
+import { invertColorText } from "../../../utils/colorText";
 
 export const DivContainer = styled.div`
-    background: linear-gradient(318deg,#66bccf,#0e8b9e);
+    background: ${props => `linear-gradient(318deg,#ffffff,${props.color})`};
     background-size: 400% 400%;
     -webkit-animation: AnimationName 30s ease infinite;
     -moz-animation: AnimationName 30s ease infinite;
@@ -54,8 +55,8 @@ export const DivBody = styled.div`
     align-items: center;
 `
 export const Button = styled.input`
-    color: white;
-    background-color: #a8ad00;
+    color: ${props => invertColorText(props.color)};
+    background-color: ${props => `${props.color}`};
     border-radius: 5px;
     text-align: center;
     padding: 10px 20px;
@@ -65,6 +66,6 @@ export const Button = styled.input`
     border: none;
 
     &:hover {
-        background-color: #717406;
+        box-shadow: 20px 20px 50px 10px #52484a47 inset;
     }
 `
