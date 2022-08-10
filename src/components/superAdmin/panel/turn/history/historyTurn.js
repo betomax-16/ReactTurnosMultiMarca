@@ -1,5 +1,8 @@
+import { Navigate } from "react-router-dom";
+
 export function HistoryTurn() {
-    return (
-        <h1>History Turns</h1>
-    );
+    const brand = localStorage.getItem('brand');
+    return (<>
+        {brand ? <h1>History Turns</h1> : <Navigate to="/notFound" replace />}
+    </>);
 }

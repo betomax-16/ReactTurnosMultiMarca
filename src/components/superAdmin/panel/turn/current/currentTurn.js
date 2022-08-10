@@ -1,5 +1,8 @@
+import { Navigate } from "react-router-dom";
+
 export function CurrentTurn() {
-    return (
-        <h1>Current Turns</h1>
-    );
+    const brand = localStorage.getItem('brand');
+    return (<>
+        {brand ? <h1>Current Turns</h1> : <Navigate to="/notFound" replace />}
+    </>);
 }

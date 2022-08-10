@@ -5,6 +5,7 @@ import TextField from '@mui/material/TextField';
 import { RequireNoAuth } from "../../../components/RequireNoAuth";
 
 export function LoginSuperAdmin() {
+    const BACKGROUDCOLOR = '#0e8b9e';
     const logo = process.env.PUBLIC_URL + '/logo-aries.png';
     const [ login, brand ] = useLogin();
     const { control, handleSubmit, formState: { errors } } = useForm({defaultValues: { username: '', password: '' }});
@@ -12,7 +13,29 @@ export function LoginSuperAdmin() {
 
     return (
         <RequireNoAuth>
-            <DivContainer color={brand && brand.color ? brand.color : '#0e8b9e'}>
+            <DivContainer color={brand && brand.color ? brand.color : BACKGROUDCOLOR} className='background'>
+                <>
+                    <span color={brand && brand.color ? brand.color : BACKGROUDCOLOR}></span>
+                    <span color={brand && brand.color ? brand.color : BACKGROUDCOLOR}></span>
+                    <span color={brand && brand.color ? brand.color : BACKGROUDCOLOR}></span>
+                    <span color={brand && brand.color ? brand.color : BACKGROUDCOLOR}></span>
+                    <span color={brand && brand.color ? brand.color : BACKGROUDCOLOR}></span>
+                    <span color={brand && brand.color ? brand.color : BACKGROUDCOLOR}></span>
+                    <span color={brand && brand.color ? brand.color : BACKGROUDCOLOR}></span>
+                    <span color={brand && brand.color ? brand.color : BACKGROUDCOLOR}></span>
+                    <span color={brand && brand.color ? brand.color : BACKGROUDCOLOR}></span>
+                    <span color={brand && brand.color ? brand.color : BACKGROUDCOLOR}></span>
+                    <span color={brand && brand.color ? brand.color : BACKGROUDCOLOR}></span>
+                    <span color={brand && brand.color ? brand.color : BACKGROUDCOLOR}></span>
+                    <span color={brand && brand.color ? brand.color : BACKGROUDCOLOR}></span>
+                    <span color={brand && brand.color ? brand.color : BACKGROUDCOLOR}></span>
+                    <span color={brand && brand.color ? brand.color : BACKGROUDCOLOR}></span>
+                    <span color={brand && brand.color ? brand.color : BACKGROUDCOLOR}></span>
+                    <span color={brand && brand.color ? brand.color : BACKGROUDCOLOR}></span>
+                    <span color={brand && brand.color ? brand.color : BACKGROUDCOLOR}></span>
+                    <span color={brand && brand.color ? brand.color : BACKGROUDCOLOR}></span>
+                    <span color={brand && brand.color ? brand.color : BACKGROUDCOLOR}></span>
+                </>
                 <FormLogin onSubmit={handleSubmit(onSubmit)}>
                     <DivHeader>
                         <Logo src={brand && brand.logo ? brand.logo : logo} alt="logo"></Logo>
