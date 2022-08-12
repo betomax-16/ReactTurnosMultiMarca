@@ -13,13 +13,16 @@ export const Nav = styled.nav`
 `;
 
 export const ImgLogo = styled.img`
-    width: 100%;
+    height: 100%;
 `
 
 export const DivLogo = styled.div`
     background-color: white;
     box-shadow: inset -7px 0px 20px #e4e5e5;
     padding: 5px;
+    height: 60px;
+    display: flex;
+    justify-content: center;
 `
 
 export const DivOptions = styled.div`

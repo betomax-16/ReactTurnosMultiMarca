@@ -19,7 +19,7 @@ export function Menu() {
     return (
         <Nav color={brand && brand.color ? brand.color : BACKGROUDCOLOR}>
             <DivLogo>
-                <ImgLogo src={brand && brand.logo ? brand.logo : logo} alt="logo"></ImgLogo>
+                <ImgLogo src={brand && brand.url ? brand.url : logo} alt="logo"></ImgLogo>
             </DivLogo>
             <DivOptions>
                 {user && (user.rol === 'Super-Admin') && <LinkStyle color={brand && brand.color ? brand.color : BACKGROUDCOLOR} to="/panel/brands">

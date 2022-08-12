@@ -38,7 +38,7 @@ export function LoginSuperAdmin() {
                 </>
                 <FormLogin onSubmit={handleSubmit(onSubmit)}>
                     <DivHeader>
-                        <Logo src={brand && brand.logo ? brand.logo : logo} alt="logo"></Logo>
+                        <Logo crossorigin="anonymous" src={brand && brand.url ? brand.url : logo} alt="logo"></Logo>
                     </DivHeader>
                     <DivBody>
                         <h1 style={{color: brand ? '#000' : '#2a9aad'}}>Bienvenido</h1>

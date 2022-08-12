@@ -7,31 +7,10 @@ const getRandomInt = (max) => {
 }
 
 export const DivContainer = styled.div`
-    /* background: ${props => `linear-gradient(318deg,#ffffff,${props.color})`};
-    background-size: 400% 400%;
-    -webkit-animation: AnimationName 30s ease infinite;
-    -moz-animation: AnimationName 30s ease infinite;
-    animation: AnimationName 30s ease infinite; */
     height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-
-    /* @-webkit-keyframes AnimationName {
-        0%{background-position:20% 0%}
-        50%{background-position:81% 100%}
-        100%{background-position:20% 0%}
-    }
-    @-moz-keyframes AnimationName {
-        0%{background-position:20% 0%}
-        50%{background-position:81% 100%}
-        100%{background-position:20% 0%}
-    }
-    @keyframes AnimationName {
-        0%{background-position:20% 0%}
-        50%{background-position:81% 100%}
-        100%{background-position:20% 0%}
-    } */
 
     @keyframes move {
         100% {
@@ -379,10 +358,11 @@ export const DivHeader = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
+    height: 100px;
 `
 
 export const Logo = styled.img`
-    width: 100%;
+    height: 100%;
 `
 
 export const DivBody = styled.div`

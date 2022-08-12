@@ -32,7 +32,6 @@ export const useBrand = () => {
     const getBrand = async (idBrand) => {
         try {
             const path = location.pathname.split('/');
-            console.log(user);
             if ((user && user.rol !== 'Super-Admin') || 
                  path.includes('login') || 
                  path.includes('screen') || 
