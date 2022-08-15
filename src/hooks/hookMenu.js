@@ -21,10 +21,6 @@ export const useMenu = () => {
         }
     }, []);// eslint-disable-line react-hooks/exhaustive-deps
 
-    // useEffect(() => {
-    //     console.log(user);
-    // }, [user]);
-
     const logout = () => {
         dispatch(clearCurrentUser());
         if (params.idBrand) {
