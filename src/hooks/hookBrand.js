@@ -184,6 +184,8 @@ export const useBrand = () => {
                 }
                 setBrands(auxBrands);
                 setOpenFormBrand(false);
+                setBrandSelected([]);
+                setBrandSelectedID([]);
                 dispatch(setAlertsList([
                     {message: "Cambios exitosos.", visible: true, severity: 'success'}
                 ]));
