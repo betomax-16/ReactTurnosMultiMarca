@@ -44,7 +44,6 @@ export function Area() {
     ];
 
     useEffect(() => {
-        console.log(brand);
         if (params.idBrand) {
             setIdBrand(params.idBrand);
         }

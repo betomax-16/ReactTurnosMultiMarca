@@ -17,6 +17,7 @@ import TextField from '@mui/material/TextField';
 import FormGroup from '@mui/material/FormGroup';
 import { Confirm } from "../../utils/confirm";
 
+import Checkbox from '@mui/material/Checkbox';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import Select from '@mui/material/Select';
@@ -48,7 +49,14 @@ export function Branch() {
         openConfirm,
         handleAcceptConfirm,
         handleShowConfirm,
-        handleChangeBrand
+        handleChangeBrand,
+        getAreasBySucursal,
+        openFormArea,
+        handlerOpenFormAreas,
+        handlerCloseFormAreas,
+        handlerCheckAllAreas,
+        handlerSaveAreas,
+        printCheckBox
     ] = useBranch();
 
     const columns = [
@@ -68,7 +76,10 @@ export function Branch() {
         ),},
         { field: 'associate', headerName: 'Asociar', flex: 1,
             renderCell: (params) => (
-                <ButtonTable color={brand && brand.color ? brand.color : BACKGROUDCOLOR }>
+                <ButtonTable onClick={() => {
+                    handlerOpenFormAreas(params.value);
+                    getAreasBySucursal(params.value);
+                }} color={brand && brand.color ? brand.color : BACKGROUDCOLOR }>
                    Asociar Areas
                </ButtonTable> 
         ),}
@@ -221,6 +232,22 @@ export function Branch() {
                 <Button type="submit">Guardar</Button>
             </DialogActions>
             </form>
+        </Dialog>
+
+        <Dialog open={openFormArea} onClose={handlerCloseFormAreas}>
+            <DialogTitle>
+                <Checkbox onChange={handlerCheckAllAreas}/>
+                Areas en: {branchSelected?.name}
+            </DialogTitle>
+            <DialogContent>
+                <FormGroup>
+                    {printCheckBox()}
+                </FormGroup>
+            </DialogContent>
+            <DialogActions>
+                <Button onClick={handlerCloseFormAreas}>Cancelar</Button>
+                <Button onClick={() => {handlerSaveAreas()}}>Guardar</Button>
+            </DialogActions>
         </Dialog>
 
         <Confirm 
