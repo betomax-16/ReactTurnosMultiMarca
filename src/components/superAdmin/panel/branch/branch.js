@@ -96,7 +96,7 @@ export function Branch() {
 
     useEffect(() => {
         if (idBrand !== '') {
-            getBranches(params.idBrand);
+            getBranches(idBrand);
         }
     }, [idBrand]);// eslint-disable-line react-hooks/exhaustive-deps
 
@@ -218,6 +218,22 @@ export function Branch() {
                                     id="timeLimit"
                                     label="Tiempo limite de espera (min)"
                                     type="number"
+                                    fullWidth
+                                    variant="standard"
+                                    {...field}
+                            />}
+                            rules={{ required: true }}
+                        />
+                        <Controller
+                            name="secretCode"
+                            control={control}
+                            render={({ field }) => <TextField
+                                    error={errors.color?.type === 'required'}
+                                    helperText={errors?.color ? 'Campo obligatorio.' : ''}
+                                    margin="dense"
+                                    id="secretCode"
+                                    label="Codigo secreto"
+                                    type="text"
                                     fullWidth
                                     variant="standard"
                                     {...field}

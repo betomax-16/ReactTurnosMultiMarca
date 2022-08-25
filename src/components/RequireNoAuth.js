@@ -26,6 +26,14 @@ export function RequireNoAuth({children}) {
             dispatch(setAlertsList([
               {message: 'Token caducado.', visible: true, severity: 'error'}
             ]));
+            dispatch(clearCurrentUser());
+
+            if (params.idBrand) {
+              navigate(`/brands/${params.idBrand}/login`, {replace: true});
+            }
+            else {
+              navigate(`/login`, {replace: true});
+            }
           }
 
           redirects(userAux);
@@ -33,6 +41,14 @@ export function RequireNoAuth({children}) {
           dispatch(setAlertsList([
             {message: error.message, visible: true, severity: 'error'}
           ]));
+          dispatch(clearCurrentUser());
+          
+          if (params.idBrand) {
+            navigate(`/brands/${params.idBrand}/login`, {replace: true});
+          }
+          else {
+            navigate(`/login`, {replace: true});
+          }
         }
       }
     }

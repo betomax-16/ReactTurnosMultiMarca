@@ -27,7 +27,8 @@ export const useBranch = () => {
     const { control, handleSubmit, setValue, formState: { errors } } = useForm({defaultValues: {
         name: '',
         color: color?.hex,
-        timeLimit: 15
+        timeLimit: 15,
+        secretCode: ''
     }});
 
     const getAreasBySucursal = async (idBranch) => {
@@ -80,7 +81,8 @@ export const useBranch = () => {
                     urlScreen: `${window.location.hostname}:${window.location.port}/brands/${row._id}/screen`,
                     associate: row._id,
                     color: row.color,
-                    timeLimit: row.timeLimit
+                    timeLimit: row.timeLimit,
+                    secretCode: row.secretCode
                 });
             });
             setBranches(rows);
@@ -112,7 +114,10 @@ export const useBranch = () => {
                     name: newBranch.name, 
                     urlTakeTurn: `${window.location.hostname}:${window.location.port}/brands/${idBrand}/taketurn`,
                     urlScreen: `${window.location.hostname}:${window.location.port}/brands/${idBrand}/screen`,
-                    associate: newBranch._id
+                    associate: newBranch._id,
+                    color: newBranch.color,
+                    timeLimit: newBranch.timeLimit,
+                    secretCode: newBranch.secretCode
                 });
                 setBranches(auxBranches);
                 setOpenFormBranch(false);
@@ -135,7 +140,8 @@ export const useBranch = () => {
                             urlScreen: `${window.location.hostname}:${window.location.port}/brands/${idBrand}/screen`,
                             associate: newBranch._id,
                             color: newBranch.color,
-                            timeLimit: newBranch.timeLimit
+                            timeLimit: newBranch.timeLimit,
+                            secretCode: newBranch.secretCode
                         }
 
                         auxBranches[index] = element;
@@ -205,10 +211,18 @@ export const useBranch = () => {
                 if (property === 'color') {
                     setColor({hex: item[property]});
                 }
-                setValue(property, item[property], {
-                    shouldValidate: true,
-                    // shouldDirty: errors.username != null
-                })
+
+                if (property !== 'secretCode') {
+                    setValue(property, item[property], {
+                        shouldValidate: true,
+                        // shouldDirty: errors.username != null
+                    })
+                }
+                else {
+                    setValue(property, '', {
+                        shouldValidate: false,
+                    })
+                }
             }
         }
         else {
