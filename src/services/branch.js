@@ -50,4 +50,14 @@ export class BranchService {
             throw error;
         }
     }
+
+    static async reset(idBrand, idBranch) {
+        try {
+            return await axios.post(`http://${window.location.hostname}:4000/api/v1/brands/${idBrand}/branches/${idBranch}/reset`, {}, {headers:{
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }});
+        } catch (error) {
+            throw error;
+        }
+    }
 }

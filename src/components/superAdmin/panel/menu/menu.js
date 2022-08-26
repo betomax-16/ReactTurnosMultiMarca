@@ -1,4 +1,5 @@
 import Tooltip from '@mui/material/Tooltip';
+import { useEffect, useState } from "react";
 import { RiBuilding2Fill } from "react-icons/ri";
 import { FaBuysellads, FaUsers } from "react-icons/fa";
 import { IoTicket, IoStorefront } from "react-icons/io5";
@@ -9,14 +10,46 @@ import { HiDocumentReport } from "react-icons/hi";
 import { useMenu } from "../../../../hooks/hookMenu";
 import { useBrand } from "../../../../hooks/hookBrand";
 import { Nav, ImgLogo, DivLogo, DivOptions, DivOption, LinkStyle, Icon, Title, SubMenu, DivSubOption } from "./styles";
+import Select from '@mui/material/Select';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
+import Button from '@mui/material/Button';
+import MenuItem from '@mui/material/MenuItem';
+import { Confirm } from "../../utils/confirm";
 
 export function Menu() {
     const BACKGROUDCOLOR = '#0e8b9e';
     const logo = process.env.PUBLIC_URL + '/logo-aries.png';
-    const [user, toggleTurn, setToggleTurn, logout, handlerOpenModalSucursal] = useMenu();
+    const [nameBranchSelected, setNameBranchSelected] = useState('');
+    const [
+        user, toggleTurn, setToggleTurn, logout, 
+        openModalReset, handlerOpenModalReset, handlerCloseModalReset,
+        selectBranch, onChangeBranch, branches,
+        openConfirm, handleCloseConfirm, handleOpenConfirm, handleAcceptConfirm,
+        getBrands, selectBrand, setSelectBrand,
+        onChangeBrand, brands
+    ] = useMenu();
     const [brand] = useBrand();
 
-    return (
+    useEffect(() => {
+        if (!brand) {
+            getBrands();
+        }
+        else {
+            setSelectBrand(brand._id);
+        }
+    }, [brand]);// eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        if (selectBranch !== '') {
+            const res = branches.find(b => b.id === selectBranch);
+            setNameBranchSelected(res.name);
+        }
+    }, [selectBranch]);// eslint-disable-line react-hooks/exhaustive-deps
+
+    return (<>
         <Nav color={brand && brand.color ? brand.color : BACKGROUDCOLOR}>
             <DivLogo>
                 <ImgLogo src={brand && brand.url ? brand.url : logo} alt="logo"></ImgLogo>
@@ -112,7 +145,7 @@ export function Menu() {
                                 <Title>Reportes</Title>
                             </DivSubOption>
                         </LinkStyle>
-                        {user && (user.rol === 'Admin' || user.rol === 'Sub-Admin') && <DivSubOption onClick={handlerOpenModalSucursal}>
+                        {user && (user.rol === 'Admin' || user.rol === 'Sub-Admin') && <DivSubOption onClick={handlerOpenModalReset}>
                             <Tooltip title="Re-iniciar turnos">
                                 <Icon>
                                     <BiReset size={30}/>
@@ -142,5 +175,48 @@ export function Menu() {
                 </DivOption>
             </DivOptions>
         </Nav>
-    );
+
+        <Dialog open={openModalReset} onClose={handlerCloseModalReset}>
+            {!brand && <>
+                <DialogTitle>Marca</DialogTitle>
+                <DialogContent>
+                    <Select fullWidth
+                            value={selectBrand}
+                            onChange={(e) => {
+                                onChangeBrand(e.target.value);
+                            }}
+                            label="Marca" >
+                        {brands.map((brand, index) =>
+                            <MenuItem className="item-combobox" key={index} value={brand.id}>{brand.name}</MenuItem>
+                        )}
+                    </Select>
+                </DialogContent>
+            </>}
+            <DialogTitle>Sucursal donde se reiniciarán los turnos</DialogTitle>
+            <DialogContent>
+                <Select fullWidth
+                        value={selectBranch}
+                        onChange={(e) => {
+                            onChangeBranch(e.target.value);
+                        }}
+                        label="Sucursal" >
+                    {branches.map((branch, index) =>
+                        <MenuItem className="item-combobox" key={index} value={branch.id}>{branch.name}</MenuItem>
+                    )}
+                </Select>
+            </DialogContent>
+            <DialogActions>
+                <Button onClick={handlerCloseModalReset}>Cancelar</Button>
+                <Button onClick={handleOpenConfirm}>Aceptar</Button>
+            </DialogActions>
+        </Dialog>
+
+        <Confirm 
+            open={openConfirm}
+            title={'Re-iniciar turnos'} 
+            message={`¿Desea realmente realizar el re-inicio de los turnos de ${nameBranchSelected}?`} 
+            handleClose={handleCloseConfirm}
+            handleAccept={handleAcceptConfirm}
+                />
+    </>);
 }
