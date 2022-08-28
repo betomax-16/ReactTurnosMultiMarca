@@ -56,16 +56,19 @@ export function Branch() {
         handlerCloseFormAreas,
         handlerCheckAllAreas,
         handlerSaveAreas,
-        printCheckBox
+        printCheckBox,
+        copyUrlTakeTurn
     ] = useBranch();
 
     const columns = [
         { field: 'name', headerName: 'Sucursal', flex: 1 },
         { field: 'urlTakeTurn', headerName: 'Toma turno', flex: 1,
             renderCell: (params) => (
-               <ButtonTable color={brand && brand.color ? brand.color : BACKGROUDCOLOR }>
-                   Abrir Toma Turno
-               </ButtonTable> 
+                <ButtonTable color={brand && brand.color ? brand.color : BACKGROUDCOLOR } onClick={() => {
+                        copyUrlTakeTurn(params.value);
+                }}>
+                    Copiar URL
+                </ButtonTable> 
         ),},
         { field: 'urlScreen', headerName: 'Pantalla', flex: 1,
             renderCell: (params) => (<>

@@ -21,7 +21,9 @@ export const useTakeTurn = () => {
             const resBranch = await BranchService.get(params.idBrand, params.idBranch)
             setBranch(resBranch.data.body);
             const res = await AreaBranchService.getAll(params.idBrand, params.idBranch)
-            setAreas(res.data.body);
+            if (res.data.statusCode === 200) {
+                setAreas(res.data.body);    
+            }
         } catch (error) {
             if (error.response && error.response.data) {
                 const errors = [];

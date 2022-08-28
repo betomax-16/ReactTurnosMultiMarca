@@ -113,7 +113,7 @@ export function Area() {
                                     helperText={errors?.name ? 'Campo obligatorio.' : ''}
                                     margin="dense"
                                     id="name"
-                                    label="Marca"
+                                    label="Area"
                                     type="text"
                                     fullWidth
                                     autoFocus

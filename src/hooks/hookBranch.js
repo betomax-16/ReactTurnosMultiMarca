@@ -77,8 +77,8 @@ export const useBranch = () => {
                 rows.push({
                     id: row._id,
                     name: row.name, 
-                    urlTakeTurn: `${window.location.hostname}:${window.location.port}/brands/${row._id}/taketurn`,
-                    urlScreen: `${window.location.hostname}:${window.location.port}/brands/${row._id}/screen`,
+                    urlTakeTurn: `${window.location.hostname}:${window.location.port}/brands/${idBrand}/branches/${row._id}/takeTurn`,
+                    urlScreen: `${window.location.hostname}:${window.location.port}/brands/${idBrand}/branches/${row._id}/screen`,
                     associate: row._id,
                     color: row.color,
                     timeLimit: row.timeLimit,
@@ -112,8 +112,8 @@ export const useBranch = () => {
                 auxBranches.push({
                     id: newBranch._id,
                     name: newBranch.name, 
-                    urlTakeTurn: `${window.location.hostname}:${window.location.port}/brands/${idBrand}/taketurn`,
-                    urlScreen: `${window.location.hostname}:${window.location.port}/brands/${idBrand}/screen`,
+                    urlTakeTurn: `${window.location.hostname}:${window.location.port}/brands/${idBrand}/branches/${newBranch._id}/takeTurn`,
+                    urlScreen: `${window.location.hostname}:${window.location.port}/brands/${idBrand}/branches/${newBranch._id}/screen`,
                     associate: newBranch._id,
                     color: newBranch.color,
                     timeLimit: newBranch.timeLimit,
@@ -136,8 +136,8 @@ export const useBranch = () => {
                         element = {
                             id: newBranch._id,
                             name: newBranch.name, 
-                            urlTakeTurn: `${window.location.hostname}:${window.location.port}/brands/${idBrand}/taketurn`,
-                            urlScreen: `${window.location.hostname}:${window.location.port}/brands/${idBrand}/screen`,
+                            urlTakeTurn: `${window.location.hostname}:${window.location.port}/brands/${idBrand}/branches/${newBranch._id}/takeTurn`,
+                            urlScreen: `${window.location.hostname}:${window.location.port}/brands/${idBrand}/branches/${newBranch._id}/screen`,
                             associate: newBranch._id,
                             color: newBranch.color,
                             timeLimit: newBranch.timeLimit,
@@ -373,6 +373,13 @@ export const useBranch = () => {
         }
     }
 
+    const copyUrlTakeTurn = (url) => {
+        navigator.clipboard.writeText(url);
+        dispatch(setAlertsList([
+            {message: 'URL copiada.', visible: true, severity: 'success'}
+        ]))
+    }
+
     return [
         handlerOnSelectionModelChange, branchSelectedID,
         branchSelected,
@@ -398,6 +405,7 @@ export const useBranch = () => {
         handlerCloseFormAreas,
         handlerCheckAllAreas,
         handlerSaveAreas,
-        printCheckBox
+        printCheckBox,
+        copyUrlTakeTurn
     ];
 }
