@@ -10,6 +10,8 @@ import { HistoryTurn } from "../components/superAdmin/panel/turn/history/history
 import { Report } from "../components/superAdmin/panel/turn/report/report";
 import { Ad } from "../components/superAdmin/panel/ads/ads";
 import { Home } from "../components/superAdmin/panel/home";
+import { LoginSecretCode } from "../components/secretCodeBranch/login/login";
+import { TakeTurn } from "../components/secretCodeBranch/takeTurn/takeTurn";
 
 export const routes = [
     {
@@ -65,6 +67,14 @@ export const routes = [
     {
         path: '/brands/:idBrand/login',
         component: LoginSuperAdmin,
+    },
+    {
+        path: '/brands/:idBrand/branches/:idBranch/takeTurn/login',
+        component: LoginSecretCode,
+    },
+    {
+        path: '/brands/:idBrand/branches/:idBranch/takeTurn',
+        component: TakeTurn,
     },
     {
         path: '/brands/:idBrand/panel/*',

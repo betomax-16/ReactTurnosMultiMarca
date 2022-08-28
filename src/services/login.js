@@ -16,4 +16,12 @@ export class LoginService {
             throw error;
         }
     }
+
+    static async loginSecret(idBrand, idBranch, data) {
+        try {
+            return await axios.post(`http://${window.location.hostname}:4000/api/v1/brands/${idBrand}/branches/${idBranch}/secretLoginCode`, data);
+        } catch (error) {
+            throw error;
+        }
+    }
 }
