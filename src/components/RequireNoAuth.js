@@ -65,6 +65,9 @@ export function RequireNoAuth({children}) {
       case 'sub-admin':
           navigate(`/brands/${params.idBrand}/panel/branches`, {replace: true});
         break;
+      case 'recepcionista':
+          navigate(`/brands/${params.idBrand}/reception`, {replace: true});
+        break;
       default:
           dispatch(clearCurrentUser());
           dispatch(setAlertsList([

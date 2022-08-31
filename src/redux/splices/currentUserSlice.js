@@ -40,7 +40,8 @@ export const currentUserSlice = createSlice({
             }
         },
         clearCurrentUser: (state) => {
-            localStorage.clear();
+            localStorage.removeItem('token');
+            localStorage.removeItem('brand');
             state.user = null;
         }
     }
