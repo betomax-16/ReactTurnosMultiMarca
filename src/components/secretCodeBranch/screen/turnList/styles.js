@@ -36,6 +36,7 @@ export const Ad = styled.img`
     /* width: 100%; */
     padding: 25px;
     box-sizing: border-box;
+    overflow: hidden;
 `;
 
 export const List = styled.div`    

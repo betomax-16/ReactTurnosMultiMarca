@@ -1,7 +1,6 @@
 import { RequireAuthSecret } from "../../RequireAuthSecret";
 import { DivContainer, DivTakeTurnHeader, TitleTakeTurnHeader, LogoTakeTurnHeader, BranchTakeTurnHeader, DivTakeTurnBody, DivTakeTurnFooter, DivTakeTurnButtons, DivTakeTurnButton, SubTitleTakeTurnBody, SubTitleTakeTurnFooter } from "./styles";
 import { useTakeTurn } from "../../../hooks/hookTakeTurn";
-import { useBrand } from "../../../hooks/hookBrand";
 
 export function TakeTurn() {
     const BACKGROUDCOLOR = '#0e8b9e';
@@ -9,9 +8,9 @@ export function TakeTurn() {
     const [
         areas,
         takeTurn,
-        branch
+        branch,
+        brand
     ] = useTakeTurn();
-    const [brand] = useBrand();
 
     return (
         <RequireAuthSecret>

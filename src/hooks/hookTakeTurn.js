@@ -3,18 +3,41 @@ import { useDispatch } from 'react-redux';
 import { setAlertsList } from '../redux/splices/alertSlice';
 import { AreaBranchService } from "../services/areaBranch";
 import { TraceService } from "../services/trace";
+import { BrandService } from "../services/brand";
 import { BranchService } from "../services/branch";
 import { useParams } from "react-router-dom";
 
 export const useTakeTurn = () => {
     const [areas, setAreas] = useState([]);
     const [branch, setBranch] = useState(null);
+    const [brand, setBrand] = useState(null);
     const params = useParams();
     const dispatch = useDispatch();
 
     useEffect(() => {
+        getBrand();
         getAreas();
     }, []);// eslint-disable-line react-hooks/exhaustive-deps
+
+    const getBrand = async () => {
+        try {
+            const res = await BrandService.get(params.idBrand);
+            setBrand(res.data.body);
+        } catch (error) {
+            if (error.response && error.response.data) {
+                const errors = [];
+                error.response.data.body.errors.forEach(e => {
+                    errors.push({message: e.msg, visible: true, severity: 'error'});
+                });
+                dispatch(setAlertsList(errors))
+            }
+            else {
+                dispatch(setAlertsList([
+                    {message: error.message, visible: true, severity: 'error'}
+                ]))
+            }
+        }
+    }
 
     const getAreas = async () => {
         try {
@@ -67,6 +90,7 @@ export const useTakeTurn = () => {
     return [
         areas,
         takeTurn,
-        branch
+        branch,
+        brand
     ];
 };
