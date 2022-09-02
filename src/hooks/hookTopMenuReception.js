@@ -91,12 +91,15 @@ export function useTopMenuReception() {
         setStoreValues({ branch: null, module: null });
     }
 
-    const handlerOnClickChangeModule = () => {
+    const handlerOnClickChangeModule = async () => {
         setSelectModule(null);
         setValueSelect(''); 
         localStorage.removeItem('module');
         const auxStore = {...storeValues};
-        ModuleService.update(params.idBrand, auxStore.branch._id, auxStore.module._id, {idUser: ''});
+        await ModuleService.update(params.idBrand, auxStore.branch._id, auxStore.module._id, {idUser: ''});
+        if (!modules.length) {
+            getModules(params.idBrand, auxStore.branch._id);   
+        }
         auxStore.module = null;
         setStoreValues(auxStore);
     }

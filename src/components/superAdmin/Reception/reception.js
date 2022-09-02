@@ -1,7 +1,8 @@
 import { RequireAuth } from "../../RequireAuth";
 import { TopMenu } from "./TopMenu/topMenu";
 import { useReception } from "../../../hooks/hookReception";
-import { DivContainer, DivContentGreeting, GreetingTitle } from "./styles";
+import { DivContainer, DivContentGreeting, GreetingTitle, DivContent, DivContentBody } from "./styles";
+import { LateralMenu } from "./LateralMenu/lateralMenu";
 
 export function Reception() {
     const brand = JSON.parse(localStorage.getItem('brand'));
@@ -39,24 +40,17 @@ export function Reception() {
                         valueSelect={valueSelect} valuesItemList={valuesItemList}
                         handlerChangeSelectValue={handlerChangeSelectValue}
                         handlerSelectValue={handlerSelectValue}/>
-                {/* {module && <>
+                {user && storeValues.module &&
                 <DivContent>
-                    <Attend areas={areas} currentTurn={currentTurn} socket={socket}
-                            setAreas={setAreas}
-                            handlerAttendTurn={handlerAttendTurn}
-                            handlerAttendedTurn={handlerAttendedTurn}
-                            handlerCancelationTurn={handlerCancelationTurn}
-                            handlerReCallTurn={handlerReCallTurn}/>
+                    <LateralMenu color={brand && brand.color ? brand.color : '#5a8f80'}/>
                     <DivContentBody>
-                        <TurnList date={dateState} currentTurn={currentTurn} lastTurns={lastTurns}/>
+                        {/* <TurnList date={dateState} currentTurn={currentTurn} lastTurns={lastTurns}/> */}
                     </DivContentBody>
-                </DivContent>
-                </>} */}
+                </DivContent>}
                 {user && !storeValues.module &&
                 <DivContentGreeting>
                     <GreetingTitle color={brand && brand.color ? brand.color : '#5a8f80'}>Hola {user.name}!</GreetingTitle>
-                </DivContentGreeting>
-                }
+                </DivContentGreeting>}
             </DivContainer>
         </RequireAuth>
     );
