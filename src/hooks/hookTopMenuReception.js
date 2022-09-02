@@ -149,13 +149,14 @@ export function useTopMenuReception() {
         else {
             if (selectModule) {
                 const module = modules.find(m => m._id === selectModule?._id);
-                ModuleService.update(params.idBrand, module.idSucursal, module._id, {idUser: user.id});
-                module.idUser = user.id;
-                localStorage.setItem('module', JSON.stringify(module)); 
+                const auxModule = {...module};
+                ModuleService.update(params.idBrand, auxModule.idSucursal, auxModule._id, {idUser: user.id});
+                auxModule.idUser = user.id;
+                localStorage.setItem('module', JSON.stringify(auxModule)); 
                 // const auxStore = {...storeValues};
                 // auxStore.module = module;
                 // setStoreValues(auxStore);
-                dispatch(setModule(module));
+                dispatch(setModule(auxModule));
             }
         }
         handlerCloseSubMenu();

@@ -92,7 +92,7 @@ export const DivOptionButton = styled.div`
     }};
     border-radius: 5px;
     color: ${props => {
-        return props.disable ? invertColorText(getColor(props.color, 6)) : invertColorText(getColor(props.color, 2));
+        return props.disable ? invertColorText(props.color) : invertColorText(props.color, 2);
     }};
     margin: 10px 5px;
     cursor: ${props => {

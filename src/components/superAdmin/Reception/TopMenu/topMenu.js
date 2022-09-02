@@ -18,7 +18,7 @@ export function TopMenu(props) {
             </LogoContainer>
             <TitleContainer>
                 {props.sesion.module && <TitleMenu color={props.sesion.branch && props.sesion.branch.color ? props.sesion.branch.color : brand.color}>
-                    {props.sesion.module.name}
+                    {`${props.sesion.branch.name}-${props.sesion.module.name}`}
                 </TitleMenu>}
             </TitleContainer>
             <OptionsContainer>

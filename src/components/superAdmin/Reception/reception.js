@@ -3,6 +3,7 @@ import { TopMenu } from "./TopMenu/topMenu";
 import { useReception } from "../../../hooks/hookReception";
 import { DivContainer, DivContentGreeting, GreetingTitle, DivContent, DivContentBody } from "./styles";
 import { LateralMenu } from "./LateralMenu/lateralMenu";
+import { TurnList } from "../screen/turnList/turnList";
 
 export function Reception() {
     const brand = JSON.parse(localStorage.getItem('brand'));
@@ -44,7 +45,7 @@ export function Reception() {
                 <DivContent>
                     <LateralMenu color={brand && brand.color ? brand.color : '#5a8f80'}/>
                     <DivContentBody>
-                        {/* <TurnList date={dateState} currentTurn={currentTurn} lastTurns={lastTurns}/> */}
+                        <TurnList color={brand && brand.color ? brand.color : '#5a8f80'} turn={sesion.currentTurn?.turn} ubication={sesion.currentTurn?.ubication}/>
                     </DivContentBody>
                 </DivContent>}
                 {user && !sesion.module &&
