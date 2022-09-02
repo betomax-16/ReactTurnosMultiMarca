@@ -22,13 +22,13 @@ export function Reception() {
         openSubMenu, anchorEl,
         handlerCloseSubMenu,
         handlerLogout,
-        storeValues
+        sesion
     ] = useReception();
 
     return(
         <RequireAuth>
             <DivContainer>
-                <TopMenu storeValues={storeValues} selectModule={selectModule} modules={modules} 
+                <TopMenu sesion={sesion} selectModule={selectModule} modules={modules} 
                         selectBranch={selectBranch} sucursals={branches}
                         openSubMenu={openSubMenu} isBranch={isBranch}
                         handlerOnClickOpenBranch={handlerOnClickOpenBranch}
@@ -40,14 +40,14 @@ export function Reception() {
                         valueSelect={valueSelect} valuesItemList={valuesItemList}
                         handlerChangeSelectValue={handlerChangeSelectValue}
                         handlerSelectValue={handlerSelectValue}/>
-                {user && storeValues.module &&
+                {user && sesion.module &&
                 <DivContent>
                     <LateralMenu color={brand && brand.color ? brand.color : '#5a8f80'}/>
                     <DivContentBody>
                         {/* <TurnList date={dateState} currentTurn={currentTurn} lastTurns={lastTurns}/> */}
                     </DivContentBody>
                 </DivContent>}
-                {user && !storeValues.module &&
+                {user && !sesion.module &&
                 <DivContentGreeting>
                     <GreetingTitle color={brand && brand.color ? brand.color : '#5a8f80'}>Hola {user.name}!</GreetingTitle>
                 </DivContentGreeting>}

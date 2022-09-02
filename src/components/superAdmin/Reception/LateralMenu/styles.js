@@ -146,7 +146,7 @@ export const DivButtonAction = styled.div`
             color = '#32aecd'
         }
 
-        if (props.accept) {
+        if (props.finish) {
             color = 'yellowgreen'
         }
 
@@ -161,15 +161,15 @@ export const DivButtonAction = styled.div`
         background-color: ${props => {
             let color = '';
             if (props.recall) {
-                color = 'red'
+                color = '#52d0f0'
             }
 
-            if (props.accept) {
+            if (props.finish) {
                 color = '#b5f13b'
             }
 
             if (props.cancel) {
-                color = '#52d0f0'
+                color = 'red'
             }
 
             return color;

@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Confirm } from "../../utils/confirm";
 import { 
     DivContainer, DivOptions, DivOptionsTitle, DivOptionsButtons, 
@@ -7,9 +8,9 @@ import {
 import { useLateralMenu } from "../../../../hooks/hookLateralMenu";
 
 export function LateralMenu(props) {
+    const [count, setCount] = useState(0);
     const [
         areas,
-        currentTurn,
         openConfirm,
         handlerNextTurn,
         handlerRecallTurn,
@@ -17,17 +18,18 @@ export function LateralMenu(props) {
         handlerOpenConfirm,
         handlerCloseConfirm,
         handlerAcceptConfirm,
-        module
+        sesion
     ] = useLateralMenu();
 
-    const getNumbers = () => {
-        let count = 0;
-        areas.forEach(area => {
-            count += area.number;
-        });
-
-        return count;
-    }
+    useEffect(() => {
+        if (sesion && sesion.module) {
+            let auxCount = 0;
+            areas.forEach(area => {
+                auxCount += area.number;
+            }); 
+            setCount(auxCount);
+        }
+    }, [sesion]);// eslint-disable-line react-hooks/exhaustive-deps
 
     return(<>
         <DivContainer color={props.color}>
@@ -36,30 +38,30 @@ export function LateralMenu(props) {
                     <h2>Atender turno</h2>
                 </DivOptionsTitle>
                 <DivOptionsButtons>
-                    {module && module.mode === 'auto' &&
-                    <DivOptionButton color={'#32aecd'} disable={module.status} onClick={() => handlerNextTurn('')}>
-                        <DivOptionButtonSubIndex>{getNumbers()}</DivOptionButtonSubIndex>
+                    {sesion.module && sesion.module.mode === 'auto' &&
+                    <DivOptionButton color={'#32aecd'} disable={sesion.module.status} onClick={() => handlerNextTurn('')}>
+                        <DivOptionButtonSubIndex>{count}</DivOptionButtonSubIndex>
                         <span className="attend-text">Siguiente</span>
                     </DivOptionButton>}
-                    {module && module.mode === 'manual' && <>
+                    {sesion.module && sesion.module.mode === 'manual' && <>
                     {areas.map((area, index) => <DivOptionButton key={index} onClick={() => handlerNextTurn(area.id)} 
-                        color={props.color} disable={module.status}>
+                        color={props.color} disable={sesion.module.status}>
                         <DivOptionButtonSubIndex>{area.number}</DivOptionButtonSubIndex>
                         <span className="attend-text">{area.name}</span>
                     </DivOptionButton>)}
                     </>}
                 </DivOptionsButtons>
             </DivOptions>
-            {module && module.status &&
+            {sesion.module && sesion.module.status &&
             <DivCurrentTurn>
                 <DivButtonAction recall onClick={handlerRecallTurn}>Re-llamar</DivButtonAction>
                 <DivCurrentContent>
                     <CurrentContentTitle>Turno en atención</CurrentContentTitle>
-                    <CurrentContentTurn>{currentTurn?.turn}</CurrentContentTurn>
+                    <CurrentContentTurn>{sesion.currentTurn?.turn}</CurrentContentTurn>
                 </DivCurrentContent>
                 <DivCurrentButtons>
                     <DivButtonAction cancel onClick={handlerOpenConfirm}>Cancelar</DivButtonAction>
-                    <DivButtonAction accept onClick={handlerFinishTurn}>Atendido</DivButtonAction>
+                    <DivButtonAction finish onClick={handlerFinishTurn}>Atendido</DivButtonAction>
                 </DivCurrentButtons>
             </DivCurrentTurn>
             }
@@ -67,7 +69,7 @@ export function LateralMenu(props) {
         <Confirm 
             open={openConfirm}
             title={'Cacenlar turno'} 
-            message={`¿Desea realmente cancelar el turno: ${currentTurn?.turn}?`} 
+            message={`¿Desea realmente cancelar el turno: ${sesion.currentTurn?.turn}?`} 
             handleClose={handlerCloseConfirm}
             handleAccept={handlerAcceptConfirm}/>
     </>);

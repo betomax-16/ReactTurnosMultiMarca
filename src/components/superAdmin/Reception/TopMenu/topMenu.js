@@ -12,37 +12,37 @@ export function TopMenu(props) {
     const brand = JSON.parse(localStorage.getItem('brand'));
 
     return (<>
-        <NavContainer color={props.storeValues.branch && props.storeValues.branch.color ? props.storeValues.branch.color : brand.color}>
+        <NavContainer color={props.sesion.branch && props.sesion.branch.color ? props.sesion.branch.color : brand.color}>
             <LogoContainer>
                 <Logo src={brand && brand.url ? brand.url : logo} alt="logo"></Logo>
             </LogoContainer>
             <TitleContainer>
-                {props.storeValues.module && <TitleMenu color={props.storeValues.branch && props.storeValues.branch.color ? props.storeValues.branch.color : brand.color}>
-                    {props.storeValues.module.name}
+                {props.sesion.module && <TitleMenu color={props.sesion.branch && props.sesion.branch.color ? props.sesion.branch.color : brand.color}>
+                    {props.sesion.module.name}
                 </TitleMenu>}
             </TitleContainer>
             <OptionsContainer>
-                {!props.storeValues.branch && !props.storeValues.module &&
-                <OptionButton onClick={props.handlerOnClickOpenBranch} color={props.storeValues.branch && props.storeValues.branch.color ? props.storeValues.branch.color : brand.color}>
+                {!props.sesion.branch && !props.sesion.module &&
+                <OptionButton onClick={props.handlerOnClickOpenBranch} color={props.sesion.branch && props.sesion.branch.color ? props.sesion.branch.color : brand.color}>
                     <BiSelectMultiple className="icon" size={20}/>
                     <ButtonText>Seleccionar sucursal</ButtonText>
                 </OptionButton>}
-                {props.storeValues.branch && !props.storeValues.module &&
-                <OptionButton onClick={props.handlerOnClickChangeBranch} color={props.storeValues.branch && props.storeValues.branch.color ? props.storeValues.branch.color : brand.color}>
+                {props.sesion.branch && !props.sesion.module &&
+                <OptionButton onClick={props.handlerOnClickChangeBranch} color={props.sesion.branch && props.sesion.branch.color ? props.sesion.branch.color : brand.color}>
                     <FaExchangeAlt className="icon" size={20}/>
                     <ButtonText>Cambiar sucursal</ButtonText>
                 </OptionButton>}
-                {!props.storeValues.module && props.storeValues.branch &&
-                <OptionButton onClick={props.handlerOnClickOpenModule} color={props.storeValues.branch && props.storeValues.branch.color ? props.storeValues.branch.color : brand.color}>
+                {!props.sesion.module && props.sesion.branch &&
+                <OptionButton onClick={props.handlerOnClickOpenModule} color={props.sesion.branch && props.sesion.branch.color ? props.sesion.branch.color : brand.color}>
                     <BiSelectMultiple className="icon" size={20}/>
                     <ButtonText>Seleccionar modulo</ButtonText>
                 </OptionButton>}
-                {props.storeValues.module && props.storeValues.branch &&
-                <OptionButton onClick={props.handlerOnClickChangeModule} color={props.storeValues.branch && props.storeValues.branch.color ? props.storeValues.branch.color : brand.color}>
+                {props.sesion.module && props.sesion.branch &&
+                <OptionButton onClick={props.handlerOnClickChangeModule} color={props.sesion.branch && props.sesion.branch.color ? props.sesion.branch.color : brand.color}>
                     <FaExchangeAlt className="icon" size={20}/>
                     <ButtonText>Cambiar módulo</ButtonText>
                 </OptionButton>}
-                <OptionButton onClick={props.handlerLogout} color={props.storeValues.branch && props.storeValues.branch.color ? props.storeValues.branch.color : brand.color}>
+                <OptionButton onClick={props.handlerLogout} color={props.sesion.branch && props.sesion.branch.color ? props.sesion.branch.color : brand.color}>
                     <BiLogOut className="icon" size={20}/> 
                     <ButtonText>Cerrar sesión</ButtonText>
                 </OptionButton>
@@ -68,7 +68,7 @@ export function TopMenu(props) {
                             {props.valuesItemList.map((item, index)=> <MenuItem key={index} value={item._id}>{item.name}</MenuItem>)}
                         </Select>
                     </FormControl>
-                    <ButtonSubMenu onClick={props.handlerSelectValue} color={props.storeValues.branch && props.storeValues.branch.color ? props.storeValues.branch.color : brand.color}>
+                    <ButtonSubMenu onClick={props.handlerSelectValue} color={props.sesion.branch && props.sesion.branch.color ? props.sesion.branch.color : brand.color}>
                         Aceptar
                     </ButtonSubMenu>
                 </div>

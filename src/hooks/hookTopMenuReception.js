@@ -2,14 +2,15 @@ import { useState, useEffect } from "react";
 import { BranchService } from "../services/branch";
 import { ModuleService } from "../services/module";
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { setAlertsList } from '../redux/splices/alertSlice';
 import { clearCurrentUser } from '../redux/splices/currentUserSlice';
+import { setBranch, setModule, setCurrentTurn } from "../redux/splices/sesionSlice";
+import { TraceService } from "../services/trace";
 
 export function useTopMenuReception() {
     const user = useSelector((state) => state.currentUser.user);
     const dispatch = useDispatch();
-    const navigate = useNavigate();
     const params = useParams();
     const [branches, setBranches] = useState([]);
     const [selectBranch, setSelectBranch] = useState(null);
@@ -21,26 +22,12 @@ export function useTopMenuReception() {
     const [isBranch, setIsBranch] = useState(false);
     const [valuesItemList, setValuesItemList] = useState([]);
     const [valueSelect, setValueSelect] = useState('');
-    const [storeValues, setStoreValues] = useState({
-        branch: null,
-        module: null
-    });
+
+    const sesion = useSelector((state) => state.sesion);
+    const [checkCurrenTurn, setCheckCurrenTurn] = useState(false);
 
     useEffect(() => {
-        const branch = JSON.parse(localStorage.getItem('branch'));
-        const module = JSON.parse(localStorage.getItem('module'));
-        const auxStoreValues = {...storeValues};
         getBranches(params.idBrand);
-
-        if (branch) {
-            auxStoreValues.branch = branch;
-        }
-
-        if (module) {
-            auxStoreValues.module = module;
-        }
-
-        setStoreValues(auxStoreValues);
     }, []);// eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
@@ -51,6 +38,33 @@ export function useTopMenuReception() {
             }
         }
     }, [user]);// eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        if (user && sesion && sesion.branch) {
+            setCheckCurrenTurn(true);
+        }
+    }, [user, sesion]);// eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        const init = async () => {
+            const turn = await TraceService.getTurns(params.idBrand, sesion.branch._id, `?idUser=${user.id}|eq&sourceSection=recepcion|eq|and&finalDate=null|eq|and`);
+            
+            if (turn.data.body.length) {
+                dispatch(setCurrentTurn(turn.data.body[0]));
+                dispatch(setBranch(turn.data.body[0].branch));
+                const module = await ModuleService.getAll(params.idBrand, turn.data.body[0].branch._id, `?idUser=${user.id}|eq`)
+                dispatch(setModule(module.data.body[0]));
+
+                localStorage.setItem('branch', JSON.stringify(turn.data.body[0].branch));
+                localStorage.setItem('module', JSON.stringify(module.data.body));
+            }
+        }
+
+        if (checkCurrenTurn) {
+            init();
+        }
+    }, [checkCurrenTurn]);// eslint-disable-line react-hooks/exhaustive-deps
+
 
     const handlerOnClickOpenBranch = (event) => {
         setIsBranch(true);
@@ -85,23 +99,26 @@ export function useTopMenuReception() {
         setValueSelect('');
         localStorage.removeItem('branch');
         localStorage.removeItem('module');
-        if (storeValues.module) {
-            ModuleService.update(params.idBrand, storeValues.branch._id, storeValues.module._id, {idUser: ''});
+        if (sesion.module) {
+            ModuleService.update(params.idBrand, sesion.branch._id, sesion.module._id, {idUser: ''});
         }
-        setStoreValues({ branch: null, module: null });
+        dispatch(setBranch(null));
+        dispatch(setModule(null));
+        // setStoreValues({ branch: null, module: null });
     }
 
     const handlerOnClickChangeModule = async () => {
         setSelectModule(null);
         setValueSelect(''); 
         localStorage.removeItem('module');
-        const auxStore = {...storeValues};
-        await ModuleService.update(params.idBrand, auxStore.branch._id, auxStore.module._id, {idUser: ''});
+        // const auxStore = {...sesion};
+        await ModuleService.update(params.idBrand, sesion.branch._id, sesion.module._id, {idUser: ''});
         if (!modules.length) {
-            getModules(params.idBrand, auxStore.branch._id);   
+            getModules(params.idBrand, sesion.branch._id);   
         }
-        auxStore.module = null;
-        setStoreValues(auxStore);
+        dispatch(setModule(null));
+        // auxStore.module = null;
+        // setStoreValues(auxStore);
     }
 
     const handlerChangeSelectValue = (event) => {
@@ -122,9 +139,10 @@ export function useTopMenuReception() {
             if (selectBranch) {
                 const branch = branches.find(b => b._id === selectBranch?._id);
                 localStorage.setItem('branch', JSON.stringify(branch));
-                const auxStore = {...storeValues};
-                auxStore.branch = branch;
-                setStoreValues(auxStore);
+                // const auxStore = {...storeValues};
+                // auxStore.branch = branch;
+                // setStoreValues(auxStore);
+                dispatch(setBranch(branch));
                 getMyModule(params.idBrand, branch, user.id);
             }
         }
@@ -134,9 +152,10 @@ export function useTopMenuReception() {
                 ModuleService.update(params.idBrand, module.idSucursal, module._id, {idUser: user.id});
                 module.idUser = user.id;
                 localStorage.setItem('module', JSON.stringify(module)); 
-                const auxStore = {...storeValues};
-                auxStore.module = module;
-                setStoreValues(auxStore);
+                // const auxStore = {...storeValues};
+                // auxStore.module = module;
+                // setStoreValues(auxStore);
+                dispatch(setModule(module));
             }
         }
         handlerCloseSubMenu();
@@ -151,15 +170,17 @@ export function useTopMenuReception() {
         setOpenSubMenu(false);
     }
 
-    const handlerLogout = () => {
-        dispatch(clearCurrentUser());
-        if (selectBranch && selectModule) {
-            ModuleService.update(params.idBrand, selectBranch._id, selectModule._id, {idUser: ''});
+    const handlerLogout = async () => {
+        if (sesion.branch && sesion.module) {
+            await ModuleService.update(params.idBrand, sesion.branch._id, sesion.module._id, {idUser: ''});
         }
         localStorage.removeItem('branch');
         localStorage.removeItem('module');
-        setStoreValues({ branch: null, module: null });
-        navigate(`/brands/${params.idBrand}/login`, {replace: true});
+        dispatch(setBranch(null));
+        dispatch(setModule(null));
+        dispatch(clearCurrentUser());
+        // setStoreValues({ branch: null, module: null });
+        // navigate(`/brands/${params.idBrand}/login`, {replace: true});
     }
 
     const getBranches = async (idBrand) => {
@@ -208,10 +229,12 @@ export function useTopMenuReception() {
             if (res.data.body.length) {
                 const module = res.data.body[0];
                 localStorage.setItem('module', JSON.stringify(module)); 
-                const auxStore = {...storeValues};
-                auxStore.branch = branch;
-                auxStore.module = module;
-                setStoreValues(auxStore);
+                // const auxStore = {...storeValues};
+                // auxStore.branch = branch;
+                // auxStore.module = module;
+                // setStoreValues(auxStore);
+                dispatch(setBranch(branch));
+                dispatch(setModule(module));
             }
             else {
                 getModules(idBrand, branch._id);
@@ -244,6 +267,6 @@ export function useTopMenuReception() {
         handlerSelectValue,
         openSubMenu, anchorEl,
         handlerCloseSubMenu,
-        handlerLogout, storeValues
+        handlerLogout, sesion
     ];
 }

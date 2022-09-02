@@ -20,7 +20,7 @@ export const useReception = () => {
         openSubMenu, anchorEl,
         handlerCloseSubMenu,
         handlerLogout,
-        storeValues
+        sesion
     ] = useTopMenuReception();
 
     useEffect(() => {
@@ -42,6 +42,6 @@ export const useReception = () => {
         openSubMenu, anchorEl,
         handlerCloseSubMenu,
         handlerLogout, 
-        storeValues
+        sesion
     ];
 };

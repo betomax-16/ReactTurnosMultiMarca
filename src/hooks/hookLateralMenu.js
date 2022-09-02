@@ -1,38 +1,32 @@
 import { useState, useEffect } from "react";
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { setAlertsList } from '../redux/splices/alertSlice';
 import { useParams } from "react-router-dom";
 import { AreaBranchService } from "../services/areaBranch";
 import { StateService } from "../services/states";
 import { TraceService } from "../services/trace";
+import { setModule, setCurrentTurn } from "../redux/splices/sesionSlice";
 
 export const useLateralMenu = () => {
-    const [currentTurn, setCurrentTurn] = useState(null);
     const [openConfirm, setOpenConfirm] = useState(false);
     const [areas, setAreas] = useState([]);
-    const [module, setModule] = useState(null);
-    const [branch, setBranch] = useState(null);
 
+    const sesion = useSelector((state) => state.sesion);
     const params = useParams();
     const dispatch = useDispatch();
 
     useEffect(() => {
-        setBranch(JSON.parse(localStorage.getItem('branch')));
-        setModule(JSON.parse(localStorage.getItem('module')));
-    }, []);// eslint-disable-line react-hooks/exhaustive-deps
-
-    useEffect(() => {
-        if (branch) {
+        if (sesion && sesion.branch && !areas.length) {
             getAreas();
         }
-    }, [branch]);// eslint-disable-line react-hooks/exhaustive-deps
+    }, [sesion]);// eslint-disable-line react-hooks/exhaustive-deps
 
     const getAreas = async () => {
         try {
             const states = await StateService.getAll();
             const inWait = states.data.body.find(state => state.name === 'espera');
-            const resAreas = await AreaBranchService.getAll(params.idBrand, branch._id);
-            const turns = await TraceService.getTurns(params.idBrand, branch._id, `?idState=${inWait._id}|eq`);
+            const resAreas = await AreaBranchService.getAll(params.idBrand, sesion.branch._id);
+            const turns = await TraceService.getTurns(params.idBrand, sesion.branch._id, `?idState=${inWait._id}|eq`);
 
             const rows = [];
             resAreas.data.body.forEach(item => {
@@ -63,13 +57,26 @@ export const useLateralMenu = () => {
 
     const handlerNextTurn = async (idArea) => {
         try {
-            const moduleAux = {...module};
+            const moduleAux = {...sesion.module};
             const data = moduleAux.mode === 'auto' ? {idModule: moduleAux._id} : {idModule: moduleAux._id, idArea: idArea};
-            const res = await TraceService.nextTurn(params.idBrand, branch.idBranch, data);
-            setCurrentTurn(res.data.body);
+            const res = await TraceService.nextTurn(params.idBrand, sesion.branch._id, data);
+            dispatch(setCurrentTurn(res.data.body));
             moduleAux.status = true;
             localStorage.setItem('module', JSON.stringify(moduleAux));
-            setModule(moduleAux);
+            dispatch(setModule(moduleAux));
+
+            const auxAreas = [...areas];
+            for (let index = 0; index < auxAreas.length; index++) {
+                const item = {...auxAreas[index]};
+                if (item.id === idArea) {
+                    item.number--;
+                    auxAreas[index] = item;
+                    break;
+                }
+            }
+
+            setAreas(auxAreas);
+
         } catch (error) {
             if (error.response && error.response.data) {
                 const errors = [];
@@ -88,10 +95,10 @@ export const useLateralMenu = () => {
 
     const handlerRecallTurn = async () => {
         try {
-            const res = await TraceService.recallTurn(params.idBrand, branch.idBranch, {idModule: module._id});
-            setCurrentTurn(res.data.body);
+            const res = await TraceService.recallTurn(params.idBrand, sesion.branch._id, {idModule: sesion.module._id});
+            dispatch(setCurrentTurn(res.data.body));
             dispatch(setAlertsList([
-                {message: 'Ha rellamado a: ', visible: true, severity: 'info'}
+                {message: `Ha rellamado a: ${res.data.body.turn}`, visible: true, severity: 'info'}
             ]))
         } catch (error) {
             if (error.response && error.response.data) {
@@ -111,12 +118,13 @@ export const useLateralMenu = () => {
 
     const handlerCancelTurn = async () => {
         try {
-            const moduleAux = {...module};
-            const res = await TraceService.cancelTurn(params.idBrand, branch.idBranch, {idModule: module._id});
-            setCurrentTurn(res.data.body);
+            const moduleAux = {...sesion.module};
+            await TraceService.cancelTurn(params.idBrand, sesion.branch._id, {idModule: sesion.module._id});
+            dispatch(setCurrentTurn(null));
             moduleAux.status = false;
             localStorage.setItem('module', JSON.stringify(moduleAux));
-            setModule(moduleAux);
+            dispatch(setModule(moduleAux));
+            handlerCloseConfirm();
         } catch (error) {
             if (error.response && error.response.data) {
                 const errors = [];
@@ -135,12 +143,12 @@ export const useLateralMenu = () => {
 
     const handlerFinishTurn = async () => {
         try {
-            const moduleAux = {...module};
-            const res = await TraceService.finishTurn(params.idBrand, branch.idBranch, {idModule: module._id});
-            setCurrentTurn(res.data.body);
+            const moduleAux = {...sesion.module};
+            await TraceService.finishTurn(params.idBrand, sesion.branch._id, {idModule: sesion.module._id});
+            dispatch(setCurrentTurn(null));
             moduleAux.status = false;
             localStorage.setItem('module', JSON.stringify(moduleAux));
-            setModule(moduleAux);
+            dispatch(setModule(moduleAux));
         } catch (error) {
             if (error.response && error.response.data) {
                 const errors = [];
@@ -171,7 +179,6 @@ export const useLateralMenu = () => {
 
     return [
         areas,
-        currentTurn,
         openConfirm,
         handlerNextTurn,
         handlerRecallTurn,
@@ -179,6 +186,6 @@ export const useLateralMenu = () => {
         handlerOpenConfirm,
         handlerCloseConfirm,
         handlerAcceptConfirm,
-        module
+        sesion
     ];
 }

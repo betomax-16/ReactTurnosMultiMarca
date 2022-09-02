@@ -26,7 +26,7 @@ export function RequireNoAuth({children}) {
             dispatch(setAlertsList([
               {message: 'Token caducado.', visible: true, severity: 'error'}
             ]));
-            dispatch(clearCurrentUser());
+            // dispatch(clearCurrentUser());
 
             if (params.idBrand) {
               navigate(`/brands/${params.idBrand}/login`, {replace: true});
@@ -41,7 +41,7 @@ export function RequireNoAuth({children}) {
           dispatch(setAlertsList([
             {message: error.message, visible: true, severity: 'error'}
           ]));
-          dispatch(clearCurrentUser());
+          // dispatch(clearCurrentUser());
           
           if (params.idBrand) {
             navigate(`/brands/${params.idBrand}/login`, {replace: true});
