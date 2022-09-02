@@ -12,6 +12,7 @@ import { Ad } from "../components/superAdmin/panel/ads/ads";
 import { Home } from "../components/superAdmin/panel/home";
 import { LoginSecretCode } from "../components/secretCodeBranch/login/login";
 import { TakeTurn } from "../components/secretCodeBranch/takeTurn/takeTurn";
+import { Screen } from "../components/secretCodeBranch/screen/screen";
 import { Reception } from "../components/superAdmin/Reception/reception";
 
 export const routes = [
@@ -76,6 +77,14 @@ export const routes = [
     {
         path: '/brands/:idBrand/branches/:idBranch/takeTurn',
         component: TakeTurn,
+    },
+    {
+        path: '/brands/:idBrand/branches/:idBranch/screen/login',
+        component: LoginSecretCode,
+    },
+    {
+        path: '/brands/:idBrand/branches/:idBranch/screen',
+        component: Screen,
     },
     {
         path: '/brands/:idBrand/reception',

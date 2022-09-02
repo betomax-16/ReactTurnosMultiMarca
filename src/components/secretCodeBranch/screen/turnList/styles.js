@@ -8,28 +8,34 @@ export const DivContainer = styled.div`
 
 export const DivAds = styled.div`    
     display: none;
+    background-color: ${props => props.color};
 
     @media only screen and (min-width: 992px) {
         display: flex;
+        justify-content: center;
+        align-items: center;
         width: 70%;
     } 
 
     @media only screen and (min-width: 1200px) {
         display: flex;
+        justify-content: center;
+        align-items: center;
         width: 70%;
     } 
 
     @media only screen and (min-width: 1700px) {
         display: flex;
+        justify-content: center;
+        align-items: center;
         width: 70%;
     } 
 `;
 
 export const Ad = styled.img`    
-    width: 100%;
+    /* width: 100%; */
     padding: 25px;
     box-sizing: border-box;
-    background-color: #01613cab;
 `;
 
 export const List = styled.div`    

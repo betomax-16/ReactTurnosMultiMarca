@@ -25,7 +25,9 @@ export function RequireAuthSecret({children}) {
                         await LoginService.loginSecret(params.idBrand, params.idBranch, {secretCode: window.atob(userToken.secretCode)});    
                     }
                     else {
-                        navigate(`/brands/${params.idBrand}/branches/${params.idBranch}/takeTurn/login`, {replace: true});
+                        const split = window.location.pathname.split('/');
+                        const dir = split[split.length - 2];
+                        navigate(`/brands/${params.idBrand}/branches/${params.idBranch}/${dir}/login`, {replace: true});
                     }
                 }
             } catch (error) {
@@ -43,7 +45,9 @@ export function RequireAuthSecret({children}) {
                 }
 
                 localStorage.removeItem('secret-token');
-                navigate(`/brands/${params.idBrand}/branches/${params.idBranch}/takeTurn/login`, {replace: true});
+                const split = window.location.pathname.split('/');
+                const dir = split[split.length - 2];
+                navigate(`/brands/${params.idBrand}/branches/${params.idBranch}/${dir}/login`, {replace: true});
             }
         }
 

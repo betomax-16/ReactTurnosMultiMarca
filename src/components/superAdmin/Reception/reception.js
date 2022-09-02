@@ -3,7 +3,7 @@ import { TopMenu } from "./TopMenu/topMenu";
 import { useReception } from "../../../hooks/hookReception";
 import { DivContainer, DivContentGreeting, GreetingTitle, DivContent, DivContentBody } from "./styles";
 import { LateralMenu } from "./LateralMenu/lateralMenu";
-import { TurnList } from "../screen/turnList/turnList";
+import { TurnList } from "../../secretCodeBranch/screen/turnList/turnList";
 
 export function Reception() {
     const brand = JSON.parse(localStorage.getItem('brand'));

@@ -14,7 +14,9 @@ export const useLoginSecrete = () => {
         try {
             const res = await LoginService.loginSecret(params.idBrand, params.idBranch, data);
             localStorage.setItem('secret-token', res.data.body.token);
-            navigate(`/brands/${params.idBrand}/branches/${params.idBranch}/takeTurn`);
+            const split = window.location.pathname.split('/');
+            const dir = split[split.length - 2];
+            navigate(`/brands/${params.idBrand}/branches/${params.idBranch}/${dir}`);
         } catch (error) {
             if (error.response && error.response.data) {
                 const errors = [];

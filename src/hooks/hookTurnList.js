@@ -8,12 +8,13 @@ import { useParams } from "react-router-dom";
 import moment from "moment";
 
 export const useTurnList = () => {
+    const logo = process.env.PUBLIC_URL + '/logo512.png';
     const [intervalDate, setIntervalDate] = useState(null);
     const [lastTurns, setLastTurns] = useState([]);
     const [dateState, setDateState] = useState(moment());
     const [readySesionBranch, setReadySesionBranch] = useState(false);
     const [ads, setAds] = useState([]);
-    const [currentAd, setCurrentAd] = useState('');
+    const [currentAd, setCurrentAd] = useState(logo);
     const [intervalAd, setIntervalAd] = useState(null);
 
     const params = useParams();
@@ -54,7 +55,7 @@ export const useTurnList = () => {
                 setCurrentAd(ads[index].url);
             }
             else {
-                setCurrentAd('');
+                setCurrentAd(logo);
             }
         }, 1000 * 60));    
     }, [ads]);// eslint-disable-line react-hooks/exhaustive-deps
