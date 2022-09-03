@@ -15,8 +15,11 @@ export const useTakeTurn = () => {
     const dispatch = useDispatch();
 
     useEffect(() => {
-        getBrand();
-        getAreas();
+        const token = localStorage.getItem('secret-token');
+        if (token) {
+            getBrand();
+            getAreas();
+        }
     }, []);// eslint-disable-line react-hooks/exhaustive-deps
 
     const getBrand = async () => {
