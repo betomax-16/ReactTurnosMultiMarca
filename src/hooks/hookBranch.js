@@ -380,6 +380,13 @@ export const useBranch = () => {
         ]))
     }
 
+    const copyUrlScreen = (url) => {
+        navigator.clipboard.writeText(url);
+        dispatch(setAlertsList([
+            {message: 'URL copiada.', visible: true, severity: 'success'}
+        ]))
+    }
+
     return [
         handlerOnSelectionModelChange, branchSelectedID,
         branchSelected,
@@ -406,6 +413,7 @@ export const useBranch = () => {
         handlerCheckAllAreas,
         handlerSaveAreas,
         printCheckBox,
-        copyUrlTakeTurn
+        copyUrlTakeTurn,
+        copyUrlScreen
     ];
 }
