@@ -6,21 +6,76 @@ import { TraceService } from "../services/trace";
 import { BrandService } from "../services/brand";
 import { BranchService } from "../services/branch";
 import { useParams } from "react-router-dom";
+import { w3cwebsocket } from "websocket";
 
 export const useTakeTurn = () => {
     const [areas, setAreas] = useState([]);
     const [branch, setBranch] = useState(null);
     const [brand, setBrand] = useState(null);
+
+    const [socket, setSocket] = useState(null);
+    const [tabHasFocus, setTabHasFocus] = useState(true);
+    
     const params = useParams();
     const dispatch = useDispatch();
 
     useEffect(() => {
+        const handleFocus = () => {
+            // console.log('Tab has focus');
+            setTabHasFocus(true);
+        };
+    
+        const handleBlur = () => {
+            // console.log('Tab lost focus');
+            setTabHasFocus(false);
+        };
+    
+        window.addEventListener('focus', handleFocus);
+        window.addEventListener('blur', handleBlur);
+
         const token = localStorage.getItem('secret-token');
         if (token) {
             getBrand();
             getAreas();
         }
+
+        return () => {
+            window.removeEventListener('focus', handleFocus);
+            window.removeEventListener('blur', handleBlur);
+        };
     }, []);// eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        if (tabHasFocus) {
+            if (socket) {
+                if (socket.readyState === socket.CLOSED) {
+                    connectSocketPrint();
+                }
+            }
+            else {
+                connectSocketPrint();
+            }
+        }
+    }, [tabHasFocus])// eslint-disable-line react-hooks/exhaustive-deps
+
+    // useEffect(() => {
+    //     if (socket) {
+    //         socket.onmessage = function(e) {
+    //             if (typeof e.data === 'string') {
+    //                 console.log("Received: '" + e.data + "'");
+    //             }
+    //         };
+    //     }
+    // }, [socket]);
+
+    const connectSocketPrint = () => {
+        const client = new w3cwebsocket(`ws://${window.location.hostname}:4000/`);
+        client.onopen = function() {
+            if (client.readyState === client.OPEN) {
+                setSocket(client);   
+            }
+        };
+    }
 
     const getBrand = async () => {
         try {
@@ -68,8 +123,11 @@ export const useTakeTurn = () => {
     
     const takeTurn = async (idArea) => {
         try {
-            await TraceService.newTurn(params.idBrand, params.idBranch, { idArea: idArea});
-            
+            const res = await TraceService.newTurn(params.idBrand, params.idBranch, { idArea: idArea});            
+            const idBrand = res.data.body.brand._id;
+            const idBranch = res.data.body.branch._id;
+            const data = JSON.stringify(res.data.body);
+            sendDataSocket(idBrand, idBranch, data);
             // socket.emit('newTurn', {sucursal:sucursal, data:res.data.body});
             dispatch(setAlertsList([
                 {message: 'Turno creado', visible: true, severity: 'success'}
@@ -89,6 +147,21 @@ export const useTakeTurn = () => {
             }
         }
     }
+
+    const sendDataSocket = (idBrand, idBranch, info) => {
+        if (socket && socket.readyState === socket.OPEN) {
+            const data = JSON.stringify({
+                acction: 'emit',
+                method: 'newTurn',
+                data: {
+                    idBrand: idBrand,
+                    idBranch: idBranch,
+                    info: info
+                }
+            });
+            socket.send(data);
+        }
+    };
 
     return [
         areas,

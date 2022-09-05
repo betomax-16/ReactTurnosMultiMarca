@@ -1,8 +1,6 @@
-import { useState, useEffect } from "react";
 import { RequireAuthSecret } from "../../RequireAuthSecret";
 import { DivContainer, DivTakeTurnHeader, TitleTakeTurnHeader, LogoTakeTurnHeader, BranchTakeTurnHeader, DivTakeTurnBody, DivTakeTurnFooter, DivTakeTurnButtons, DivTakeTurnButton, SubTitleTakeTurnBody, SubTitleTakeTurnFooter } from "./styles";
 import { useTakeTurn } from "../../../hooks/hookTakeTurn";
-import { w3cwebsocket } from "websocket";
 
 
 export function TakeTurn() {
@@ -14,51 +12,6 @@ export function TakeTurn() {
         branch,
         brand
     ] = useTakeTurn();
-
-    const [socketPrint, setSocketPrint] = useState(null);
-    const [tabHasFocus, setTabHasFocus] = useState(true);
-
-    useEffect(() => {
-        const handleFocus = () => {
-            // console.log('Tab has focus');
-            setTabHasFocus(true);
-        };
-    
-        const handleBlur = () => {
-            // console.log('Tab lost focus');
-            setTabHasFocus(false);
-        };
-    
-        window.addEventListener('focus', handleFocus);
-        window.addEventListener('blur', handleBlur);
-    
-        return () => {
-            window.removeEventListener('focus', handleFocus);
-            window.removeEventListener('blur', handleBlur);
-        };
-    }, []);
-
-    useEffect(() => {
-        if (tabHasFocus) {
-            if (socketPrint) {
-                if (socketPrint.readyState === socketPrint.CLOSED) {
-                    connectSocketPrint();
-                }
-            }
-            else {
-                connectSocketPrint();
-            }
-        }
-    }, [tabHasFocus])// eslint-disable-line react-hooks/exhaustive-deps
-
-    const connectSocketPrint = () => {
-        const client = new w3cwebsocket(`ws://${window.location.hostname}:4000/`);
-        client.onopen = function() {
-            if (client.readyState === client.OPEN) {
-              setSocketPrint(client);   
-            }
-        };
-    }
 
     return (
         <RequireAuthSecret>
