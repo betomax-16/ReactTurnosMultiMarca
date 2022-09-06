@@ -69,7 +69,7 @@ export const useTakeTurn = () => {
     // }, [socket]);
 
     const connectSocketPrint = () => {
-        const client = new w3cwebsocket(`ws://${window.location.hostname}:4000/`);
+        const client = new w3cwebsocket(`ws://${window.location.hostname}:4000/?idBranch=${params.idBranch}`);
         client.onopen = function() {
             if (client.readyState === client.OPEN) {
                 setSocket(client);   

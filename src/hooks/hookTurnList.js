@@ -20,6 +20,7 @@ export const useTurnList = () => {
     const params = useParams();
     const dispatch = useDispatch();
     const sesion = useSelector((state) => state.sesion);
+    const socketResponse = useSelector((state) => state.socketResponse);
 
     useEffect(() => {
         setIntervalDate(setInterval(() => {
@@ -36,6 +37,69 @@ export const useTurnList = () => {
             setReadySesionBranch(true);
         }
     }, [sesion]);// eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        if (socketResponse && socketResponse.response) {
+            if (socketResponse.response.method === 'callTurn') {
+                const callTurn = socketResponse.response.info;
+
+                const auxLastTurns = [...lastTurns];
+                auxLastTurns.push(callTurn);
+                const dataSort = auxLastTurns.sort((a, b) => {
+                    if (new Date(a.startDate) > new Date(b.startDate)) {
+                      return 1;
+                    }
+                    if (new Date(a.startDate) < new Date(b.startDate)) {
+                      return -1;
+                    }
+                    // a must be equal to b
+                    return 0;
+                });
+    
+                const subDataSort = dataSort.length > 3 ? dataSort.slice(dataSort.length-3) : dataSort;
+                setLastTurns(subDataSort);
+            }
+            else if (socketResponse.response.method === 'cancelTurn') {
+                const cancelTurn = socketResponse.response.info;
+                let auxLastTurns = [...lastTurns];
+                auxLastTurns = auxLastTurns.filter(t => t.turn !== cancelTurn.turn);
+
+                const dataSort = auxLastTurns.sort((a, b) => {
+                    if (new Date(a.startDate) > new Date(b.startDate)) {
+                      return 1;
+                    }
+                    if (new Date(a.startDate) < new Date(b.startDate)) {
+                      return -1;
+                    }
+                    // a must be equal to b
+                    return 0;
+                });
+    
+                const subDataSort = dataSort.length > 3 ? dataSort.slice(dataSort.length-3) : dataSort;
+                setLastTurns(subDataSort);
+            }
+            else if (socketResponse.response.method === 'finishTurnReception') {
+                const finishTurn = socketResponse.response.info;
+
+                let auxLastTurns = [...lastTurns];
+                auxLastTurns = auxLastTurns.filter(t => t.turn !== finishTurn.turn);
+
+                const dataSort = auxLastTurns.sort((a, b) => {
+                    if (new Date(a.startDate) > new Date(b.startDate)) {
+                      return 1;
+                    }
+                    if (new Date(a.startDate) < new Date(b.startDate)) {
+                      return -1;
+                    }
+                    // a must be equal to b
+                    return 0;
+                });
+    
+                const subDataSort = dataSort.length > 3 ? dataSort.slice(dataSort.length-3) : dataSort;
+                setLastTurns(subDataSort);
+            }
+        }
+    }, [socketResponse]);// eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         if (readySesionBranch) {

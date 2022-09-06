@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { BranchService } from "../services/branch";
 import { ModuleService } from "../services/module";
 import { useDispatch, useSelector } from 'react-redux';
@@ -6,7 +6,11 @@ import { useParams } from "react-router-dom";
 import { setAlertsList } from '../redux/splices/alertSlice';
 import { clearCurrentUser } from '../redux/splices/currentUserSlice';
 import { setBranch, setModule, setCurrentTurn } from "../redux/splices/sesionSlice";
+import { setSocketResponse } from "../redux/splices/socketResponseSlice";
 import { TraceService } from "../services/trace";
+import { w3cwebsocket } from "websocket";
+import AppContext from "../context/app-context";
+
 
 export function useTopMenuReception() {
     const user = useSelector((state) => state.currentUser.user);
@@ -26,8 +30,30 @@ export function useTopMenuReception() {
     const sesion = useSelector((state) => state.sesion);
     const [checkCurrenTurn, setCheckCurrenTurn] = useState(false);
 
+    const [tabHasFocus, setTabHasFocus] = useState(true);
+    const socketResponse = useSelector((state) => state.socketResponse);
+    const { setSocket, socket } = useContext(AppContext);
+
     useEffect(() => {
+        const handleFocus = () => {
+            // console.log('Tab has focus');
+            setTabHasFocus(true);
+        };
+    
+        const handleBlur = () => {
+            // console.log('Tab lost focus');
+            setTabHasFocus(false);
+        };
+    
+        window.addEventListener('focus', handleFocus);
+        window.addEventListener('blur', handleBlur);
+
         getBranches(params.idBrand);
+
+        return () => {
+            window.removeEventListener('focus', handleFocus);
+            window.removeEventListener('blur', handleBlur);
+        };
     }, []);// eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
@@ -65,7 +91,91 @@ export function useTopMenuReception() {
         }
     }, [checkCurrenTurn]);// eslint-disable-line react-hooks/exhaustive-deps
 
+    useEffect(() => {
+        if (socket && socket.readyState === socket.OPEN) {
+            if (sesion.branch) {
+                const data = JSON.stringify({
+                    acction: 'suscribe',
+                    data: {
+                        idBrand: sesion.branch.idBrand,
+                        idBranch: sesion.branch._id
+                    }
+                });
+                socket.send(data);
+            }
+        }
+    }, [socket, sesion]);
 
+    useEffect(() => {
+        if (socketResponse && socketResponse.response) {
+            if (socketResponse.response.method === 'stateModule') {
+                const moduleRes = socketResponse.response.info;
+                let auxModules = [...modules];
+                if (moduleRes.idUser) {
+                    auxModules = auxModules.filter(m => m._id !== moduleRes._id);
+                }
+                else {
+                    auxModules.push(moduleRes);
+                    auxModules = auxModules.sort((a, b) => {
+                        if (a.name > b.name) {
+                          return 1;
+                        }
+                        if (a.name < b.name) {
+                          return -1;
+                        }
+                        // a must be equal to b
+                        return 0;
+                    });
+                }
+
+                setModules(auxModules);
+
+                if (!isBranch) {
+                    setValuesItemList(auxModules);
+                }
+
+                if (auxModules.length) {
+                    const firstItem = auxModules.at(-1);
+                    setSelectModule(firstItem);
+                    setValueSelect(firstItem._id); 
+                }
+                else {
+                    setSelectModule(null);
+                    setValueSelect('');
+                }
+            }
+        }
+    }, [socketResponse]);// eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        if (tabHasFocus) {
+            if (socket) {
+                if (socket.readyState === socket.CLOSED) {
+                    connectSocketPrint();
+                }
+            }
+            else {
+                connectSocketPrint();
+            }
+        }
+    }, [tabHasFocus])// eslint-disable-line react-hooks/exhaustive-deps
+
+    const connectSocketPrint = () => {
+        const client = new w3cwebsocket(`ws://${window.location.hostname}:4000/`);
+        client.onopen = function() {
+            if (client.readyState === client.OPEN) {
+                setSocket(client);   
+            }
+        };
+        client.onmessage = function(e) {
+            if (typeof e.data === 'string') {
+                const response = JSON.parse(e.data);
+                response.info = JSON.parse(response.info);
+                dispatch(setSocketResponse(response));
+            }
+        };
+    }
+    
     const handlerOnClickOpenBranch = (event) => {
         setIsBranch(true);
         setValuesItemList(branches);
@@ -94,13 +204,38 @@ export function useTopMenuReception() {
         } 
     }
 
-    const handlerOnClickChangeBranch = () => {
+    const handlerOnClickChangeBranch = async () => {
         setSelectBranch(null);
         setValueSelect('');
         localStorage.removeItem('branch');
         localStorage.removeItem('module');
         if (sesion.module) {
-            ModuleService.update(params.idBrand, sesion.branch._id, sesion.module._id, {idUser: ''});
+            const res = await ModuleService.update(params.idBrand, sesion.branch._id, sesion.module._id, {idUser: ''});
+
+            if (socket) {
+                if (sesion.branch) {
+                    const data = JSON.stringify({
+                        acction: 'unsuscribe',
+                        data: {
+                            idBrand: sesion.branch.idBrand,
+                            idBranch: sesion.branch._id
+                        }
+                    });
+                    socket.send(data);
+    
+                    const auxInfo = JSON.stringify(res.data.body);
+                    const dataModule = JSON.stringify({
+                        acction: 'emit',
+                        method: 'stateModule',
+                        data: {
+                            idBrand: sesion.branch.idBrand,
+                            idBranch: sesion.branch._id,
+                            info: auxInfo
+                        }
+                    });
+                    socket.send(dataModule);
+                }
+            }
         }
         dispatch(setBranch(null));
         dispatch(setModule(null));
@@ -112,11 +247,36 @@ export function useTopMenuReception() {
         setValueSelect(''); 
         localStorage.removeItem('module');
         // const auxStore = {...sesion};
-        await ModuleService.update(params.idBrand, sesion.branch._id, sesion.module._id, {idUser: ''});
+        const res = await ModuleService.update(params.idBrand, sesion.branch._id, sesion.module._id, {idUser: ''});
         if (!modules.length) {
             getModules(params.idBrand, sesion.branch._id);   
         }
         dispatch(setModule(null));
+
+        if (socket) {
+            if (sesion.branch) {
+                const data = JSON.stringify({
+                    acction: 'unsuscribe',
+                    data: {
+                        idBrand: sesion.branch.idBrand,
+                        idBranch: sesion.branch._id
+                    }
+                });
+                socket.send(data);
+
+                const auxInfo = JSON.stringify(res.data.body);
+                const dataModule = JSON.stringify({
+                    acction: 'emit',
+                    method: 'stateModule',
+                    data: {
+                        idBrand: sesion.branch.idBrand,
+                        idBranch: sesion.branch._id,
+                        info: auxInfo
+                    }
+                });
+                socket.send(dataModule);
+            }
+        }
         // auxStore.module = null;
         // setStoreValues(auxStore);
     }
@@ -134,7 +294,7 @@ export function useTopMenuReception() {
         setValueSelect(event.target.value);
     }
 
-    const handlerSelectValue = () => {
+    const handlerSelectValue = async () => {
         if (isBranch) {
             if (selectBranch) {
                 const branch = branches.find(b => b._id === selectBranch?._id);
@@ -150,12 +310,22 @@ export function useTopMenuReception() {
             if (selectModule) {
                 const module = modules.find(m => m._id === selectModule?._id);
                 const auxModule = {...module};
-                ModuleService.update(params.idBrand, auxModule.idSucursal, auxModule._id, {idUser: user.id});
+                const res = await ModuleService.update(params.idBrand, auxModule.idSucursal, auxModule._id, {idUser: user.id});
+                if (socket) {
+                    const auxInfo = JSON.stringify(res.data.body);
+                    const dataModule = JSON.stringify({
+                        acction: 'emit',
+                        method: 'stateModule',
+                        data: {
+                            idBrand: params.idBrand,
+                            idBranch: auxModule.idSucursal,
+                            info: auxInfo
+                        }
+                    });
+                    socket.send(dataModule);
+                } 
                 auxModule.idUser = user.id;
-                localStorage.setItem('module', JSON.stringify(auxModule)); 
-                // const auxStore = {...storeValues};
-                // auxStore.module = module;
-                // setStoreValues(auxStore);
+                localStorage.setItem('module', JSON.stringify(auxModule));
                 dispatch(setModule(auxModule));
             }
         }
@@ -173,8 +343,33 @@ export function useTopMenuReception() {
 
     const handlerLogout = async () => {
         if (sesion.branch && sesion.module) {
-            await ModuleService.update(params.idBrand, sesion.branch._id, sesion.module._id, {idUser: ''});
+            const res = await ModuleService.update(params.idBrand, sesion.branch._id, sesion.module._id, {idUser: ''});
+            if (socket) {
+                if (sesion.branch) {
+                    const data = JSON.stringify({
+                        acction: 'unsuscribe',
+                        data: {
+                            idBrand: sesion.branch.idBrand,
+                            idBranch: sesion.branch._id
+                        }
+                    });
+                    socket.send(data);
+
+                    const auxInfo = JSON.stringify(res.data.body);
+                    const dataModule = JSON.stringify({
+                        acction: 'emit',
+                        method: 'stateModule',
+                        data: {
+                            idBrand: sesion.branch.idBrand,
+                            idBranch: sesion.branch._id,
+                            info: auxInfo
+                        }
+                    });
+                    socket.send(dataModule);
+                }
+            }
         }
+        
         localStorage.removeItem('branch');
         localStorage.removeItem('module');
         dispatch(setBranch(null));
