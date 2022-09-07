@@ -1,10 +1,13 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, useContext } from "react"
 import { useDispatch, useSelector } from 'react-redux';
 import { setAlertsList } from '../redux/splices/alertSlice';
+import { setSocketResponse } from "../redux/splices/socketResponseSlice";
 import { TraceService } from "../services/trace";
 import { StateService } from "../services/states";
 import { AdService } from "../services/ad";
 import { useParams } from "react-router-dom";
+import { w3cwebsocket } from "websocket";
+import AppContext from "../context/app-context";
 import moment from "moment";
 
 export const useTurnList = () => {
@@ -21,19 +24,45 @@ export const useTurnList = () => {
     const dispatch = useDispatch();
     const sesion = useSelector((state) => state.sesion);
     const socketResponse = useSelector((state) => state.socketResponse);
+    const { setSocket, socket } = useContext(AppContext);
+    const [tabHasFocus, setTabHasFocus] = useState(true);
 
     useEffect(() => {
+        const handleFocus = () => {
+            // console.log('Tab has focus');
+            setTabHasFocus(true);
+        };
+    
+        const handleBlur = () => {
+            // console.log('Tab lost focus');
+            setTabHasFocus(false);
+        };
+
         setIntervalDate(setInterval(() => {
             setDateState(moment());
         }, 1000));
 
+        if (params.idBranch) {
+            getTurns();
+            getAds();
+        }
+        else {        
+            window.addEventListener('focus', handleFocus);
+            window.addEventListener('blur', handleBlur);
+        }
+
         return(() => {
             clearInterval(intervalDate);
+
+            if (!params.idBranch) {
+                window.removeEventListener('focus', handleFocus);
+                window.removeEventListener('blur', handleBlur);
+            }
         })
     }, []);// eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
-        if (sesion && sesion.branch) {
+        if (!params.idBranch && sesion && sesion.branch) {
             setReadySesionBranch(true);
         }
     }, [sesion]);// eslint-disable-line react-hooks/exhaustive-deps
@@ -123,6 +152,59 @@ export const useTurnList = () => {
             }
         }, 1000 * 60));    
     }, [ads]);// eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        let info;
+        if (!params.idBranch && sesion.branch) {
+            info = {
+                idBrand: sesion.branch.idBrand,
+                idBranch: sesion.branch._id
+            };
+        }
+        else {
+            info = {
+                idBrand: params.idBrand,
+                idBranch: params.idBranch
+            };
+        }
+
+        if (socket && socket.readyState === socket.OPEN) {
+            const data = JSON.stringify({
+                acction: 'suscribe',
+                data: {...info}
+            });
+            socket.send(data);
+        }
+    }, [socket]);// eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        if (params.idBranch && tabHasFocus) {
+            if (socket) {
+                if (socket.readyState === socket.CLOSED) {
+                    connectSocket();
+                }
+            }
+            else {
+                connectSocket();
+            }
+        }
+    }, [tabHasFocus])// eslint-disable-line react-hooks/exhaustive-deps
+
+    const connectSocket = () => {
+        const client = new w3cwebsocket(`ws://${window.location.hostname}:4000/`);
+        client.onopen = function() {
+            if (client.readyState === client.OPEN) {
+                setSocket(client);   
+            }
+        };
+        client.onmessage = function(e) {
+            if (typeof e.data === 'string') {
+                const response = JSON.parse(e.data);
+                response.info = JSON.parse(response.info);
+                dispatch(setSocketResponse(response));
+            }
+        };
+    }
 
     const getTurns = async () => {
         try {

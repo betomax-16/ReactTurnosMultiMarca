@@ -65,7 +65,7 @@ export const InfoTitle = styled.h2`
 `;
 
 export const InfoTurn = styled.span`    
-    font-size: 1000%;
+    font-size: 800%;
     background-color: rgb(247 251 222);
     border-radius: 0 0 7px 7px;
     font-weight: bold;
@@ -75,6 +75,14 @@ export const InfoTurn = styled.span`
     display: flex;
     justify-content: center;
     align-items: center;
+
+    @media only screen and (min-width: 1200px) {
+        font-size: 1000%;
+    } 
+
+    @media only screen and (min-width: 1700px) {
+        font-size: 1000%;
+    } 
 `;
 
 export const DivModuleInfo = styled.div`    
@@ -89,11 +97,21 @@ export const DivModuleInfo = styled.div`
 `;
 
 export const ModuleUbication = styled.span`    
-    font-size: 800%;
+    font-size: 600%;
     font-weight: bold;
     color: #746300;
     position: absolute;
-    top: -30%;
+    top: -10%;
+
+    @media only screen and (min-width: 1200px) {
+        font-size: 800%;
+        top: -30%;
+    } 
+
+    @media only screen and (min-width: 1700px) {
+        font-size: 800%;
+        top: -30%;
+    }
 `;
 
 export const Wave = styled.img`    

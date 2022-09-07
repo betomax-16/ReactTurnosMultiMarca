@@ -151,16 +151,16 @@ export function useTopMenuReception() {
         if (tabHasFocus) {
             if (socket) {
                 if (socket.readyState === socket.CLOSED) {
-                    connectSocketPrint();
+                    connectSocket();
                 }
             }
             else {
-                connectSocketPrint();
+                connectSocket();
             }
         }
     }, [tabHasFocus])// eslint-disable-line react-hooks/exhaustive-deps
 
-    const connectSocketPrint = () => {
+    const connectSocket = () => {
         const client = new w3cwebsocket(`ws://${window.location.hostname}:4000/`);
         client.onopen = function() {
             if (client.readyState === client.OPEN) {
