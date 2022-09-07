@@ -65,4 +65,19 @@ export class TraceService {
             throw error;
         }
     }
+
+    static async getTestPendingTurn(idBrand, idBranch, query) {
+        try {
+            let url = `http://${window.location.hostname}:4000/api/v1/brands/${idBrand}/branches/${idBranch}/turns/actions/test/pending`;
+            if (query) {
+                url += query;
+            }
+
+            return await axios.get(url, {headers:{
+                'Authorization': `Bearer ${localStorage.getItem('secret-token')}`
+            }});
+        } catch (error) {
+            throw error;
+        }
+    }
 }

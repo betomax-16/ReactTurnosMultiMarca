@@ -31,9 +31,15 @@ export const Logo = styled.img`
 export const TitleContainer = styled.div`    
     display: flex;
     align-items: center;
+    width: ${props => { 
+        return props.showOnlyTitle ? '100%' : 'initial'
+    }};
 `;
 
-export const TitleMenu = styled.span`    
+export const TitleMenu = styled.span` 
+    width: ${props => { 
+        return props.showOnlyTitle ? '100%' : 'initial'
+    }};   
     font-size: 30px;
     font-weight: bold;
     color: ${props => invertColorText(props.color)};

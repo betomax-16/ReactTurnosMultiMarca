@@ -29,7 +29,7 @@ export function Reception() {
     return(
         <RequireAuth>
             <DivContainer>
-                <TopMenu sesion={sesion} selectModule={selectModule} modules={modules} 
+                <TopMenu showOnlyTitle={false} sesion={sesion} selectModule={selectModule} modules={modules} 
                         selectBranch={selectBranch} sucursals={branches}
                         openSubMenu={openSubMenu} isBranch={isBranch}
                         handlerOnClickOpenBranch={handlerOnClickOpenBranch}

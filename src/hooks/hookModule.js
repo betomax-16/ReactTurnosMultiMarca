@@ -397,6 +397,13 @@ export const useModule = () => {
         }
     }
 
+    const copyUrlModule = (url) => {
+        navigator.clipboard.writeText(url);
+        dispatch(setAlertsList([
+            {message: 'URL copiada.', visible: true, severity: 'success'}
+        ]))
+    }
+
     const printButtonAssociate = (idModule, color) => {
         if (idModule) {
             const res = modules.find(m => m.id === idModule);
@@ -417,7 +424,8 @@ export const useModule = () => {
                 }
                 else if (res.type === 'toma') {
                     return <ButtonTable color={color} onClick={() => {
-                        
+                        const path = `${window.location.hostname}:${window.location.port}/brands/${idBrand}/branches/${res.idSucursal}/modules/${res.id}/test`;
+                        copyUrlModule(path);
                     }}>Copiar url</ButtonTable>
                 }
             }

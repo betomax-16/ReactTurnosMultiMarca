@@ -16,38 +16,41 @@ export function TopMenu(props) {
             <LogoContainer>
                 <Logo src={brand && brand.url ? brand.url : logo} alt="logo"></Logo>
             </LogoContainer>
-            <TitleContainer>
-                {props.sesion.module && <TitleMenu color={props.sesion.branch && props.sesion.branch.color ? props.sesion.branch.color : brand.color}>
-                    {`${props.sesion.branch.name}-${props.sesion.module.name}`}
+            <TitleContainer showOnlyTitle={props.showOnlyTitle}>
+                {props.sesion.module && <TitleMenu showOnlyTitle={props.showOnlyTitle} color={props.sesion.branch && props.sesion.branch.color ? props.sesion.branch.color : brand.color}>
+                    {`${props.sesion.branch?.name}-${props.sesion.module.name}`}
                 </TitleMenu>}
             </TitleContainer>
-            <OptionsContainer>
-                {!props.sesion.branch && !props.sesion.module &&
-                <OptionButton onClick={props.handlerOnClickOpenBranch} color={props.sesion.branch && props.sesion.branch.color ? props.sesion.branch.color : brand.color}>
-                    <BiSelectMultiple className="icon" size={20}/>
-                    <ButtonText>Seleccionar sucursal</ButtonText>
-                </OptionButton>}
-                {props.sesion.branch && !props.sesion.module &&
-                <OptionButton onClick={props.handlerOnClickChangeBranch} color={props.sesion.branch && props.sesion.branch.color ? props.sesion.branch.color : brand.color}>
-                    <FaExchangeAlt className="icon" size={20}/>
-                    <ButtonText>Cambiar sucursal</ButtonText>
-                </OptionButton>}
-                {!props.sesion.module && props.sesion.branch &&
-                <OptionButton onClick={props.handlerOnClickOpenModule} color={props.sesion.branch && props.sesion.branch.color ? props.sesion.branch.color : brand.color}>
-                    <BiSelectMultiple className="icon" size={20}/>
-                    <ButtonText>Seleccionar modulo</ButtonText>
-                </OptionButton>}
-                {props.sesion.module && props.sesion.branch &&
-                <OptionButton onClick={props.handlerOnClickChangeModule} color={props.sesion.branch && props.sesion.branch.color ? props.sesion.branch.color : brand.color}>
-                    <FaExchangeAlt className="icon" size={20}/>
-                    <ButtonText>Cambiar módulo</ButtonText>
-                </OptionButton>}
-                <OptionButton onClick={props.handlerLogout} color={props.sesion.branch && props.sesion.branch.color ? props.sesion.branch.color : brand.color}>
-                    <BiLogOut className="icon" size={20}/> 
-                    <ButtonText>Cerrar sesión</ButtonText>
-                </OptionButton>
-            </OptionsContainer>
+            {!props.showOnlyTitle && 
+                <OptionsContainer>
+                    {!props.sesion.branch && !props.sesion.module &&
+                    <OptionButton onClick={props.handlerOnClickOpenBranch} color={props.sesion.branch && props.sesion.branch.color ? props.sesion.branch.color : brand.color}>
+                        <BiSelectMultiple className="icon" size={20}/>
+                        <ButtonText>Seleccionar sucursal</ButtonText>
+                    </OptionButton>}
+                    {props.sesion.branch && !props.sesion.module &&
+                    <OptionButton onClick={props.handlerOnClickChangeBranch} color={props.sesion.branch && props.sesion.branch.color ? props.sesion.branch.color : brand.color}>
+                        <FaExchangeAlt className="icon" size={20}/>
+                        <ButtonText>Cambiar sucursal</ButtonText>
+                    </OptionButton>}
+                    {!props.sesion.module && props.sesion.branch &&
+                    <OptionButton onClick={props.handlerOnClickOpenModule} color={props.sesion.branch && props.sesion.branch.color ? props.sesion.branch.color : brand.color}>
+                        <BiSelectMultiple className="icon" size={20}/>
+                        <ButtonText>Seleccionar modulo</ButtonText>
+                    </OptionButton>}
+                    {props.sesion.module && props.sesion.branch &&
+                    <OptionButton onClick={props.handlerOnClickChangeModule} color={props.sesion.branch && props.sesion.branch.color ? props.sesion.branch.color : brand.color}>
+                        <FaExchangeAlt className="icon" size={20}/>
+                        <ButtonText>Cambiar módulo</ButtonText>
+                    </OptionButton>}
+                    <OptionButton onClick={props.handlerLogout} color={props.sesion.branch && props.sesion.branch.color ? props.sesion.branch.color : brand.color}>
+                        <BiLogOut className="icon" size={20}/> 
+                        <ButtonText>Cerrar sesión</ButtonText>
+                    </OptionButton>
+                </OptionsContainer>
+            }
         </NavContainer>
+        {!props.showOnlyTitle && 
         <Menu
             anchorEl={props.anchorEl}
             open={props.openSubMenu}
@@ -72,6 +75,6 @@ export function TopMenu(props) {
                         Aceptar
                     </ButtonSubMenu>
                 </div>
-        </Menu>
+        </Menu>}
     </>);
 }
