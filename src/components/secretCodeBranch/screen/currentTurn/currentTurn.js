@@ -9,7 +9,7 @@ export function CurrentTurn(props) {
     const sound = process.env.PUBLIC_URL + '/timbre.mp3';
 
     useEffect(() => {
-        if (props.playSound) {
+        if (props.playSound && !props.hide) {
           const audio = new Audio(sound);
           let promise = audio.play();
     
@@ -21,9 +21,9 @@ export function CurrentTurn(props) {
             });
           }
         }
-    }, []);// eslint-disable-line react-hooks/exhaustive-deps
+    }, [props.hide]);// eslint-disable-line react-hooks/exhaustive-deps
 
-    return <DivContainer>
+    return <DivContainer style={{display: !props.hide ? 'flex' : 'none'}}>
         <DivTurnInfo>
             <DivFrame>
                 <InfoTitle>Turno</InfoTitle>

@@ -6,9 +6,11 @@ import { TraceService } from "../services/trace";
 import { StateService } from "../services/states";
 import { UserService } from "../services/user";
 import { AreaBranchService } from "../services/areaBranch";
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useLocation } from "react-router-dom";
 import { setAlertsList } from '../redux/splices/alertSlice';
+import { setSocketResponse } from "../redux/splices/socketResponseSlice";
+import { w3cwebsocket } from "websocket";
 import moment from "moment";
 
 export function useTakeTest() {
@@ -30,6 +32,10 @@ export function useTakeTest() {
         error: false
     });
 
+    const [socket, setSocket] = useState(null);
+    const [tabHasFocus, setTabHasFocus] = useState(true);
+    const socketResponse = useSelector((state) => state.socketResponse);
+
     const { search } = useLocation();
     const query = useMemo(() => new URLSearchParams(search), [search]);
     const dispatch = useDispatch();
@@ -45,10 +51,118 @@ export function useTakeTest() {
             setArea(query.get('area'));
         }
 
+        const handleFocus = () => {
+            // console.log('Tab has focus');
+            setTabHasFocus(true);
+        };
+    
+        const handleBlur = () => {
+            // console.log('Tab lost focus');
+            setTabHasFocus(false);
+        };
+    
+        window.addEventListener('focus', handleFocus);
+        window.addEventListener('blur', handleBlur);
+
         init();
         getSession();
         getTrace();
+
+        return () => {
+            window.removeEventListener('focus', handleFocus);
+            window.removeEventListener('blur', handleBlur);
+        };
     }, []);// eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        if (socket && socket.readyState === socket.OPEN) {
+            const data = JSON.stringify({
+                acction: 'suscribe',
+                data: {
+                    idBrand: params.idBrand,
+                    idBranch: params.idBranch
+                }
+            });
+            socket.send(data);
+        }
+    }, [socket]);// eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        if (tabHasFocus) {
+            if (socket) {
+                if (socket.readyState === socket.CLOSED) {
+                    connectSocket();
+                }
+            }
+            else {
+                connectSocket();
+            }
+        }
+    }, [tabHasFocus])// eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        if (socketResponse && socketResponse.response) {
+            if (socketResponse.response.method === 'finishTurnReception') {
+                const turnRes = {...socketResponse.response.info};
+                const auxTurns = [...trace];
+
+                auxTurns.push({
+                    ...turnRes,
+                    status: 'Libre',
+                    id: turnRes._id,
+                    startDate: moment(turnRes.startDate).format("YYYY-MM-DD HH:mm:ss")
+                });
+
+                setTrace(auxTurns);
+            }
+            else if (socketResponse.response.method === 'callTurnTest') {
+                const turnRes = {...socketResponse.response.info};
+                const auxTraces = [...trace];
+                const shift = turnRes.turn;
+                for (let index = 0; index < auxTraces.length; index++) {
+                    let t = {...auxTraces[index]};
+                    if (t.turn === shift) {
+                        turnRes.startDate = moment(turnRes.startDate).format("YYYY-MM-DD HH:mm:ss");
+                        turnRes.status = 'Activo';
+                        auxTraces[index] = turnRes;
+                    }
+                }
+                
+                setTrace(auxTraces);
+            }
+            else if (socketResponse.response.method === 'freeTurnTest') {
+                const turnRes = {...socketResponse.response.info};
+                const auxTraces = [...trace];
+                const shift = turnRes.turn;
+                for (let index = 0; index < auxTraces.length; index++) {
+                    let t = {...auxTraces[index]};
+                    if (t.turn === shift) {
+                        turnRes.startDate = moment(turnRes.startDate).format("YYYY-MM-DD HH:mm:ss");
+                        turnRes.status = 'Libre';
+                        auxTraces[index] = turnRes;
+                    }
+                }
+                
+                setTrace(auxTraces);
+            }
+            else if (socketResponse.response.method === 'cancelTurnTest') {
+                const turnRes = {...socketResponse.response.info};
+                let auxTraces = [...trace];
+                const shift = turnRes.turn;
+                auxTraces = auxTraces.filter(t => t.turn !== shift);
+
+                setTrace(auxTraces);
+            }
+            else if (socketResponse.response.method === 'finishTurnTest') {
+                const turnRes = {...socketResponse.response.info};
+                let auxTraces = [...trace];
+                const shift = turnRes.turn;
+                auxTraces = auxTraces.filter(t => t.turn !== shift);
+
+                setTrace(auxTraces);
+            }
+        }
+    }, [socketResponse]);// eslint-disable-line react-hooks/exhaustive-deps
 
     const getSession = async () => {
         try {
@@ -424,23 +538,19 @@ export function useTakeTest() {
                 
                 const res = await TraceService.nextTurnTest(params.idBrand, params.idBranch, data);
 
-                const auxTraces = [...trace];
-                for (let index = 0; index < auxTraces.length; index++) {
-                    let t = {...auxTraces[index]};
-                    if (t.turn === shift) {
-                        auxTraces[index] = res.data.body;
-                        auxTraces[index].startDate = moment(auxTraces[index].startDate).format("YYYY-MM-DD HH:mm:ss");
-                        auxTraces[index].status = 'Activo';
-                    }
+                if (socket) {
+                    const auxInfo = JSON.stringify(res.data.body);
+                    const data = JSON.stringify({
+                        acction: 'emit',
+                        method: 'callTurnTest',
+                        data: {
+                            idBrand: params.idBrand,
+                            idBranch: params.idBranch,
+                            info: auxInfo
+                        }
+                    });
+                    socket.send(data);
                 }
-                
-                setTrace(auxTraces);
-
-                // if (socket) {
-                //     const dataSocket = {...res.data.body};
-                //     socket.emit('attendTurnTest', { sucursal: sucursal, type:'toma', data: dataSocket });
-                //     socket.emit('turnAttend', { sucursal: sucursal, data: dataSocket });
-                // }
 
                 setOpenDialog(false);
                 setSelectedTurn(null);
@@ -478,16 +588,25 @@ export function useTakeTest() {
                     idUser: user._id
                 };
             
-                await TraceService.recallTurnTest(params.idBrand, params.idBranch, data);
+                const res = await TraceService.recallTurnTest(params.idBrand, params.idBranch, data);
                 
                 dispatch(setAlertsList([
                     {message: `Ha re-llamado a: ${shift}`, visible: true, severity: 'info'}
                 ]))
         
-                // if (socket) {
-                //     const turn = {...res.data.body};
-                //     socket.emit('turnReCall', { sucursal: sucursal, data: turn });
-                // }
+                if (socket) {
+                    const auxInfo = JSON.stringify(res.data.body);
+                    const data = JSON.stringify({
+                        acction: 'emit',
+                        method: 'recallTurn',
+                        data: {
+                            idBrand: params.idBrand,
+                            idBranch: params.idBranch,
+                            info: auxInfo
+                        }
+                    });
+                    socket.send(data);
+                }
             }
             else {
                 dispatch(setAlertsList([
@@ -522,16 +641,21 @@ export function useTakeTest() {
                     idUser: user._id
                 };
             
-                await TraceService.cancelTurnTest(params.idBrand, params.idBranch, data);
+                const res = await TraceService.cancelTurnTest(params.idBrand, params.idBranch, data);
         
-                // if (socket) {
-                //     const turn = {...res.data.body};
-                //     socket.emit('turnFinish', { sucursal: sucursal, data: turn });
-                // }
-
-                const auxTraces = [...trace];
-                const auxTrace = auxTraces.filter(t => t.turn !== shift);
-                setTrace(auxTrace);
+                if (socket) {
+                    const auxInfo = JSON.stringify(res.data.body);
+                    const data = JSON.stringify({
+                        acction: 'emit',
+                        method: 'cancelTurnTest',
+                        data: {
+                            idBrand: params.idBrand,
+                            idBranch: params.idBranch,
+                            info: auxInfo
+                        }
+                    });
+                    socket.send(data);
+                }
             }
             else {
                 dispatch(setAlertsList([
@@ -566,16 +690,21 @@ export function useTakeTest() {
                     idUser: user._id
                 };
             
-                await TraceService.finishTurnTest(params.idBrand, params.idBranch, data);
+                const res = await TraceService.finishTurnTest(params.idBrand, params.idBranch, data);
     
-                // if (socket) {
-                //     const turn = {...res.data.body};
-                //     socket.emit('turnFinish', { sucursal: sucursal, data: turn });
-                // }
-    
-                const auxTraces = [...trace];
-                const auxTrace = auxTraces.filter(t => t.turn !== shift);
-                setTrace(auxTrace); 
+                if (socket) {
+                    const auxInfo = JSON.stringify(res.data.body);
+                    const data = JSON.stringify({
+                        acction: 'emit',
+                        method: 'finishTurnTest',
+                        data: {
+                            idBrand: params.idBrand,
+                            idBranch: params.idBranch,
+                            info: auxInfo
+                        }
+                    });
+                    socket.send(data);
+                } 
             }
             else {
                 dispatch(setAlertsList([
@@ -612,22 +741,19 @@ export function useTakeTest() {
             
                 const res = await TraceService.freeTurnTest(params.idBrand, params.idBranch, data);
 
-                const auxTraces = [...trace];
-                for (let index = 0; index < auxTraces.length; index++) {
-                    let t = {...auxTraces[index]};
-                    if (t.turn === shift) {
-                        auxTraces[index] = res.data.body;
-                        auxTraces[index].startDate = moment(auxTraces[index].startDate).format("YYYY-MM-DD HH:mm:ss");
-                        auxTraces[index].status = 'Libre';
-                    }
+                if (socket) {
+                    const auxInfo = JSON.stringify(res.data.body);
+                    const data = JSON.stringify({
+                        acction: 'emit',
+                        method: 'freeTurnTest',
+                        data: {
+                            idBrand: params.idBrand,
+                            idBranch: params.idBranch,
+                            info: auxInfo
+                        }
+                    });
+                    socket.send(data);
                 }
-                setTrace(auxTraces);
-
-                // if (socket) {
-                //     const dataSocket = {...res.data.body, type: 'freeTurn'};
-                //     socket.emit('attendTurnTest', { sucursal: sucursal, type:'toma', data: dataSocket });
-                //     socket.emit('turnFinish', { sucursal: sucursal, data: dataSocket });
-                // }
             }
             else {
                 dispatch(setAlertsList([
@@ -648,6 +774,22 @@ export function useTakeTest() {
                 ]))
             }
         } 
+    }
+
+    const connectSocket = () => {
+        const client = new w3cwebsocket(`ws://${window.location.hostname}:4000/`);
+        client.onopen = function() {
+            if (client.readyState === client.OPEN) {
+                setSocket(client);   
+            }
+        };
+        client.onmessage = function(e) {
+            if (typeof e.data === 'string') {
+                const response = JSON.parse(e.data);
+                response.info = JSON.parse(response.info);
+                dispatch(setSocketResponse(response));
+            }
+        };
     }
 
     return[

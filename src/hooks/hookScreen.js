@@ -62,6 +62,10 @@ export function useScreen() {
                 const recallTurn = socketResponse.response.info;
                 emphasis(recallTurn);
             }
+            else if (socketResponse.response.method === 'callTurnTest') {
+                const callTurnAux = socketResponse.response.info;
+                emphasis(callTurnAux);
+            }
         }
     }, [socketResponse]);// eslint-disable-line react-hooks/exhaustive-deps
 
@@ -144,7 +148,7 @@ export function useScreen() {
                 });
 
                 resolve(true);
-            }, 1000 * 30);
+            }, 1000 * 15);
         });
     }
 

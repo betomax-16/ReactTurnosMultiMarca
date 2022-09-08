@@ -127,6 +127,84 @@ export const useTurnList = () => {
                 const subDataSort = dataSort.length > 3 ? dataSort.slice(dataSort.length-3) : dataSort;
                 setLastTurns(subDataSort);
             }
+            else if (socketResponse.response.method === 'callTurnTest') {
+                const callTurn = socketResponse.response.info;
+
+                const auxLastTurns = [...lastTurns];
+                auxLastTurns.push(callTurn);
+                const dataSort = auxLastTurns.sort((a, b) => {
+                    if (new Date(a.startDate) > new Date(b.startDate)) {
+                      return 1;
+                    }
+                    if (new Date(a.startDate) < new Date(b.startDate)) {
+                      return -1;
+                    }
+                    // a must be equal to b
+                    return 0;
+                });
+    
+                const subDataSort = dataSort.length > 3 ? dataSort.slice(dataSort.length-3) : dataSort;
+                setLastTurns(subDataSort);
+            }
+            else if (socketResponse.response.method === 'cancelTurnTest') {
+                const cancelTurn = socketResponse.response.info;
+                let auxLastTurns = [...lastTurns];
+                auxLastTurns = auxLastTurns.filter(t => t.turn !== cancelTurn.turn);
+
+                const dataSort = auxLastTurns.sort((a, b) => {
+                    if (new Date(a.startDate) > new Date(b.startDate)) {
+                      return 1;
+                    }
+                    if (new Date(a.startDate) < new Date(b.startDate)) {
+                      return -1;
+                    }
+                    // a must be equal to b
+                    return 0;
+                });
+    
+                const subDataSort = dataSort.length > 3 ? dataSort.slice(dataSort.length-3) : dataSort;
+                setLastTurns(subDataSort);
+            }
+            else if (socketResponse.response.method === 'finishTurnTest') {
+                const finishTurn = socketResponse.response.info;
+
+                let auxLastTurns = [...lastTurns];
+                auxLastTurns = auxLastTurns.filter(t => t.turn !== finishTurn.turn);
+
+                const dataSort = auxLastTurns.sort((a, b) => {
+                    if (new Date(a.startDate) > new Date(b.startDate)) {
+                      return 1;
+                    }
+                    if (new Date(a.startDate) < new Date(b.startDate)) {
+                      return -1;
+                    }
+                    // a must be equal to b
+                    return 0;
+                });
+    
+                const subDataSort = dataSort.length > 3 ? dataSort.slice(dataSort.length-3) : dataSort;
+                setLastTurns(subDataSort);
+            }
+            else if (socketResponse.response.method === 'freeTurnTest') {
+                const finishTurn = socketResponse.response.info;
+
+                let auxLastTurns = [...lastTurns];
+                auxLastTurns = auxLastTurns.filter(t => t.turn !== finishTurn.turn);
+
+                const dataSort = auxLastTurns.sort((a, b) => {
+                    if (new Date(a.startDate) > new Date(b.startDate)) {
+                      return 1;
+                    }
+                    if (new Date(a.startDate) < new Date(b.startDate)) {
+                      return -1;
+                    }
+                    // a must be equal to b
+                    return 0;
+                });
+    
+                const subDataSort = dataSort.length > 3 ? dataSort.slice(dataSort.length-3) : dataSort;
+                setLastTurns(subDataSort);
+            }
         }
     }, [socketResponse]);// eslint-disable-line react-hooks/exhaustive-deps
 

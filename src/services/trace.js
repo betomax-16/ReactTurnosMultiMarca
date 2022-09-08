@@ -13,13 +13,16 @@ export class TraceService {
 
     static async getTurns(idBrand, idBranch, query) {
         try {
+            const token = localStorage.getItem('token');
+            const secretToken = localStorage.getItem('secret-token');
+
             let url = `http://${window.location.hostname}:4000/api/v1/brands/${idBrand}/branches/${idBranch}/turns`;
             if (query) {
                 url += query;
             }
 
             return await axios.get(url, {headers:{
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
+                'Authorization': `Bearer ${token ? token : secretToken}`
             }});
         } catch (error) {
             throw error;

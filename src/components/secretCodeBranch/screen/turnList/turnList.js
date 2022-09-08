@@ -27,7 +27,7 @@ export function TurnList(props) {
         });
     }, []);// eslint-disable-line react-hooks/exhaustive-deps
 
-    return <DivContainer>
+    return <DivContainer style={{display: !props.hide ? 'flex' : 'none'}}>
         <DivAds color={props.color}>
             {showAdd ? <Ad alt="ad" src={currentAd} /> :
                 <CurrentTurn turn={props.turn} ubication={props.ubication}/>
