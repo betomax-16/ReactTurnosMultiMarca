@@ -4,6 +4,7 @@ import { BranchService } from "../services/branch";
 import { ModuleService } from "../services/module";
 import { TraceService } from "../services/trace";
 import { StateService } from "../services/states";
+import { UserService } from "../services/user";
 import { AreaBranchService } from "../services/areaBranch";
 import { useDispatch } from 'react-redux';
 import { useParams, useLocation } from "react-router-dom";
@@ -20,16 +21,31 @@ export function useTakeTest() {
         branch: null,
         module: null
     });
+
+    const [states, setStates] = useState([]);
+    const [openDialog, setOpenDialog] = useState(false);
+    const [selectedTurn, setSelectedTurn] = useState(null);
+    const [idExakta, setIdExakta] = useState({
+        value: '',
+        error: false
+    });
+
     const { search } = useLocation();
     const query = useMemo(() => new URLSearchParams(search), [search]);
     const dispatch = useDispatch();
     const params = useParams();
 
     useEffect(() => {
+        const init = async () => {
+            const resStates = await StateService.getAll();
+            setStates(resStates.data.body);
+        }
+
         if (query.get('area')) {
             setArea(query.get('area'));
         }
 
+        init();
         getSession();
         getTrace();
     }, []);// eslint-disable-line react-hooks/exhaustive-deps
@@ -94,10 +110,10 @@ export function useTakeTest() {
             const rows = [];
             let status = 'Libre';
             res.data.body.forEach(row => {
-                if (row.idState === stateAwaitTest._id) {
+                if (row.state._id === stateAwaitTest._id) {
                     status = 'Libre';
                 }
-                else if (row.idState === stateOnTest._id || row.idState === stateRecall._id) {
+                else if (row.state._id === stateOnTest._id || row.state._id === stateRecall._id) {
                     status = 'Activo';
                 }
 
@@ -139,10 +155,10 @@ export function useTakeTest() {
 
     const filterLab = async () => {
         try {
-            const resStates = await StateService.getAll();
-            const stateAwaitTest = resStates.data.body.find(s => s.name === 'espera toma');
-            const stateOnTest = resStates.data.body.find(s => s.name === 'en toma');
-            const stateRecall = resStates.data.body.find(s => s.name === 're-call');
+            // const resStates = await StateService.getAll();
+            const stateAwaitTest = states.find(s => s.name === 'espera toma');
+            const stateOnTest = states.find(s => s.name === 'en toma');
+            const stateRecall = states.find(s => s.name === 're-call');
             
             let newQuery = '';
             const areas = await AreaBranchService.getAll(params.idBrand, params.idBranch);
@@ -192,20 +208,23 @@ export function useTakeTest() {
     }
 
     const selectTurn = (data) => {
-        // if (data.state === 'espera toma') {
-        //     handleOpenDialog(data, 'atender');
-        // }
-        // else if (data.state === 'en toma' || data.state === 're-call') {
-        //     handleOpenDialog(data, 'otra accion');
-        // }
+        const stateAwaitTest = states.find(s => s.name === 'espera toma');
+        const stateOnTest = states.find(s => s.name === 'en toma');
+        const stateRecall = states.find(s => s.name === 're-call');
+        if (data.state._id === stateAwaitTest._id) {
+            handleOpenDialog(data, 'atender');
+        }
+        else if (data.state._id === stateOnTest._id || data.state._id === stateRecall._id) {
+            handleOpenDialog(data, 'otra accion');
+        }
     }
 
     const filterImg = async () => {
         try {
-            const resStates = await StateService.getAll();
-            const stateAwaitTest = resStates.data.body.find(s => s.name === 'espera toma');
-            const stateOnTest = resStates.data.body.find(s => s.name === 'en toma');
-            const stateRecall = resStates.data.body.find(s => s.name === 're-call');
+            // const resStates = await StateService.getAll();
+            const stateAwaitTest = states.find(s => s.name === 'espera toma');
+            const stateOnTest = states.find(s => s.name === 'en toma');
+            const stateRecall = states.find(s => s.name === 're-call');
             
             let newQuery = '';
             const areas = await AreaBranchService.getAll(params.idBrand, params.idBranch);
@@ -264,10 +283,379 @@ export function useTakeTest() {
         }
     }
 
+    const handleOpenDialog = (turn, action) => {
+        setOpenDialog(true);
+        setSelectedTurn({turn, action});
+    };
+
+    const handleCloseDialog = () => {
+        setOpenDialog(false);
+        setSelectedTurn(null);
+        setIdExakta({
+            value: '',
+            error: false
+        });
+    };
+
+    const handlerChangeIdExakta = (e) => {
+        if (e.target.value === '') {
+            setIdExakta({
+                value: '',
+                error: true
+            });
+        }
+        else {
+            setIdExakta({
+                value: e.target.value,
+                error: false
+            });
+        }
+    }
+
+    const validIdExakta = async (id, isNew = false) => {
+        try {
+            const res = await UserService.getAll(params.idBrand, `?username=${id}|eq`)
+            const user = res.data.body.length > 0 ? res.data.body[0] : null;
+            let exist = false;
+            if (user) { 
+                if (user.rol.toLowerCase() === 'recepcionista') {
+                    if (isNew) {
+                        const resTrace = await TraceService.getTestPendingTurnByUser(params.idBrand, params.idBranch, user._id)
+
+                        if (resTrace.data.body.length === 0) {
+                            exist = true;
+                        }
+                        else {
+                            const turn = resTrace.data.body[0].turn;
+                            throw new Error(`Aún tiene pacientes pendientes. [${turn.toUpperCase()}]`);
+                        }
+                    }
+                    else {
+                        const resTrace = await TraceService.getTestPendingTurnByUser(params.idBrand, params.idBranch, user._id, `?turn=${selectedTurn.turn.turn}`)
+                        if (resTrace.data.body.length > 0) {
+                            if (resTrace.data.body[0].user.username.toUpperCase() === id.toUpperCase()) {
+                                exist = true;
+                            }
+                            else {
+                                throw new Error(`El idExakta: ${id} no es el quien inicio la atención.`);
+                            }
+                        }
+                        else {
+                            throw new Error('No tiene pacientes pendientes.');
+                        }
+                    }
+                }
+                else {
+                    throw new Error('IdExakta no corresponde a un tomador o recepcionista de muestras.');
+                }
+            }
+            else {
+                throw new Error('IdExakta inexistente.');
+            }
+
+            return exist;
+        } catch (error) {
+            if (error.response && error.response.data) {
+                const errors = [];
+                error.response.data.body.errors.forEach(e => {
+                    errors.push({message: e.msg, visible: true, severity: 'error'});
+                });
+                dispatch(setAlertsList(errors))
+            }
+            else {
+                dispatch(setAlertsList([
+                    {message: error.message, visible: true, severity: 'error'}
+                ]))
+            }
+        }
+    }
+
+    const submit = async (action) => {
+        if (!idExakta.error) {
+            if (action === 'Atender') {
+                const res = await validIdExakta(idExakta.value, true);
+                if (res) {
+                    handleCloseDialog();
+                    handlerAttendTurn(idExakta.value);
+                }
+            }
+            else if (action === 'Rellamar') {
+                const res = await validIdExakta(idExakta.value);
+                if (res) {
+                    handleCloseDialog();
+                    handlerReCallTurn(idExakta.value);
+                }
+            }
+            else if (action === 'Cancelar') {
+                const res = await validIdExakta(idExakta.value);
+                if (res) {
+                    handleCloseDialog();
+                    handlerCancelationTurn(idExakta.value);
+                }
+            }
+            else if (action === 'Terminar') {
+                const res = await validIdExakta(idExakta.value);
+                if (res) {
+                    handleCloseDialog();
+                    handlerAttendedTurn(idExakta.value);
+                }
+            }
+            else if (action === 'Liberar') {
+                const res = await validIdExakta(idExakta.value);
+                if (res) {
+                    handleCloseDialog();
+                    handlerFreeTurn(idExakta.value);
+                }
+            }
+        }
+    }
+
+    const handlerAttendTurn = async (idExakta) => {
+        try {
+            const resUser = await UserService.getAll(params.idBrand, `?username=${idExakta}|eq`)
+            const user = resUser.data.body.length > 0 ? resUser.data.body[0] : null;
+            if (user) {
+                const shift = selectedTurn.turn.turn;
+                const data = {
+                    turn: shift,
+                    idModule: params.idModule,
+                    idUser: user._id
+                };
+                
+                const res = await TraceService.nextTurnTest(params.idBrand, params.idBranch, data);
+
+                const auxTraces = [...trace];
+                for (let index = 0; index < auxTraces.length; index++) {
+                    let t = {...auxTraces[index]};
+                    if (t.turn === shift) {
+                        auxTraces[index] = res.data.body;
+                        auxTraces[index].startDate = moment(auxTraces[index].startDate).format("YYYY-MM-DD HH:mm:ss");
+                        auxTraces[index].status = 'Activo';
+                    }
+                }
+                
+                setTrace(auxTraces);
+
+                // if (socket) {
+                //     const dataSocket = {...res.data.body};
+                //     socket.emit('attendTurnTest', { sucursal: sucursal, type:'toma', data: dataSocket });
+                //     socket.emit('turnAttend', { sucursal: sucursal, data: dataSocket });
+                // }
+
+                setOpenDialog(false);
+                setSelectedTurn(null);
+            }
+            else {
+                dispatch(setAlertsList([
+                    {message: 'username not found.', visible: true, severity: 'error'}
+                ]))
+            }
+        } catch (error) {
+            if (error.response && error.response.data) {
+                const errors = [];
+                error.response.data.body.errors.forEach(e => {
+                    errors.push({message: e.msg, visible: true, severity: 'error'});
+                });
+                dispatch(setAlertsList(errors))
+            }
+            else {
+                dispatch(setAlertsList([
+                    {message: error.message, visible: true, severity: 'error'}
+                ]))
+            }
+        }
+    }
+
+    const handlerReCallTurn = async (idExakta) => {
+        try {
+            const resUser = await UserService.getAll(params.idBrand, `?username=${idExakta}|eq`)
+            const user = resUser.data.body.length > 0 ? resUser.data.body[0] : null;
+            if (user) {
+                const shift = selectedTurn.turn.turn;
+                const data = {
+                    turn: shift,
+                    idModule: params.idModule,
+                    idUser: user._id
+                };
+            
+                await TraceService.recallTurnTest(params.idBrand, params.idBranch, data);
+                
+                dispatch(setAlertsList([
+                    {message: `Ha re-llamado a: ${shift}`, visible: true, severity: 'info'}
+                ]))
+        
+                // if (socket) {
+                //     const turn = {...res.data.body};
+                //     socket.emit('turnReCall', { sucursal: sucursal, data: turn });
+                // }
+            }
+            else {
+                dispatch(setAlertsList([
+                    {message: 'username not found.', visible: true, severity: 'error'}
+                ]))
+            }
+        } catch (error) {
+            if (error.response && error.response.data) {
+                const errors = [];
+                error.response.data.body.errors.forEach(e => {
+                    errors.push({message: e.msg, visible: true, severity: 'error'});
+                });
+                dispatch(setAlertsList(errors))
+            }
+            else {
+                dispatch(setAlertsList([
+                    {message: error.message, visible: true, severity: 'error'}
+                ]))
+            }
+        } 
+    }
+
+    const handlerCancelationTurn = async (idExakta) => {
+        try {
+            const resUser = await UserService.getAll(params.idBrand, `?username=${idExakta}|eq`)
+            const user = resUser.data.body.length > 0 ? resUser.data.body[0] : null;
+            if (user) {
+                const shift = selectedTurn.turn.turn;
+                const data = {
+                    turn: shift,
+                    idModule: params.idModule,
+                    idUser: user._id
+                };
+            
+                await TraceService.cancelTurnTest(params.idBrand, params.idBranch, data);
+        
+                // if (socket) {
+                //     const turn = {...res.data.body};
+                //     socket.emit('turnFinish', { sucursal: sucursal, data: turn });
+                // }
+
+                const auxTraces = [...trace];
+                const auxTrace = auxTraces.filter(t => t.turn !== shift);
+                setTrace(auxTrace);
+            }
+            else {
+                dispatch(setAlertsList([
+                    {message: 'username not found.', visible: true, severity: 'error'}
+                ]))
+            }
+        } catch (error) {
+            if (error.response && error.response.data) {
+                const errors = [];
+                error.response.data.body.errors.forEach(e => {
+                    errors.push({message: e.msg, visible: true, severity: 'error'});
+                });
+                dispatch(setAlertsList(errors))
+            }
+            else {
+                dispatch(setAlertsList([
+                    {message: error.message, visible: true, severity: 'error'}
+                ]))
+            }
+        } 
+    }
+
+    const handlerAttendedTurn = async (idExakta) => {
+        try {
+            const resUser = await UserService.getAll(params.idBrand, `?username=${idExakta}|eq`)
+            const user = resUser.data.body.length > 0 ? resUser.data.body[0] : null;
+            if (user) {
+                const shift = selectedTurn.turn.turn;
+                const data = {
+                    turn: shift,
+                    idModule: params.idModule,
+                    idUser: user._id
+                };
+            
+                await TraceService.finishTurnTest(params.idBrand, params.idBranch, data);
+    
+                // if (socket) {
+                //     const turn = {...res.data.body};
+                //     socket.emit('turnFinish', { sucursal: sucursal, data: turn });
+                // }
+    
+                const auxTraces = [...trace];
+                const auxTrace = auxTraces.filter(t => t.turn !== shift);
+                setTrace(auxTrace); 
+            }
+            else {
+                dispatch(setAlertsList([
+                    {message: 'username not found.', visible: true, severity: 'error'}
+                ]))
+            }
+        } catch (error) {
+            if (error.response && error.response.data) {
+                const errors = [];
+                error.response.data.body.errors.forEach(e => {
+                    errors.push({message: e.msg, visible: true, severity: 'error'});
+                });
+                dispatch(setAlertsList(errors))
+            }
+            else {
+                dispatch(setAlertsList([
+                    {message: error.message, visible: true, severity: 'error'}
+                ]))
+            }
+        } 
+    }
+
+    const handlerFreeTurn = async (idExakta) => {
+        try {
+            const resUser = await UserService.getAll(params.idBrand, `?username=${idExakta}|eq`)
+            const user = resUser.data.body.length > 0 ? resUser.data.body[0] : null;
+            if (user) {
+                const shift = selectedTurn.turn.turn;
+                const data = {
+                    turn: shift,
+                    idModule: params.idModule,
+                    idUser: user._id
+                };
+            
+                const res = await TraceService.freeTurnTest(params.idBrand, params.idBranch, data);
+
+                const auxTraces = [...trace];
+                for (let index = 0; index < auxTraces.length; index++) {
+                    let t = {...auxTraces[index]};
+                    if (t.turn === shift) {
+                        auxTraces[index] = res.data.body;
+                        auxTraces[index].startDate = moment(auxTraces[index].startDate).format("YYYY-MM-DD HH:mm:ss");
+                        auxTraces[index].status = 'Libre';
+                    }
+                }
+                setTrace(auxTraces);
+
+                // if (socket) {
+                //     const dataSocket = {...res.data.body, type: 'freeTurn'};
+                //     socket.emit('attendTurnTest', { sucursal: sucursal, type:'toma', data: dataSocket });
+                //     socket.emit('turnFinish', { sucursal: sucursal, data: dataSocket });
+                // }
+            }
+            else {
+                dispatch(setAlertsList([
+                    {message: 'username not found.', visible: true, severity: 'error'}
+                ]))
+            }
+        } catch (error) {
+            if (error.response && error.response.data) {
+                const errors = [];
+                error.response.data.body.errors.forEach(e => {
+                    errors.push({message: e.msg, visible: true, severity: 'error'});
+                });
+                dispatch(setAlertsList(errors))
+            }
+            else {
+                dispatch(setAlertsList([
+                    {message: error.message, visible: true, severity: 'error'}
+                ]))
+            }
+        } 
+    }
+
     return[
         session, area, trace,
         filterLaboratorio, setFilterLab,
         filterImgen, setFilterImg, filterImg,
-        keyPress, filterLab, selectTurn
+        keyPress, filterLab, selectTurn,
+        openDialog, selectedTurn, idExakta,
+        submit, handleCloseDialog, handlerChangeIdExakta
     ];
 }

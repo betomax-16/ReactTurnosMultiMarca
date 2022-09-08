@@ -12,6 +12,7 @@ const StackAlert = styled(Stack)`
     position: fixed;
     bottom: 0;
     width: 100%;
+    z-index: 10000;
 `
 
 const CollapseAlert = styled(Collapse)`

@@ -21,7 +21,12 @@ export function RequireNoAuthSecret({children}) {
                     const split = window.location.pathname.split('/');
                     const dir = split[split.length - 2];
                     if (token) {
-                        navigate(`/brands/${params.idBrand}/branches/${params.idBranch}/${dir}`, {replace: true});
+                        if (params.idModule) {
+                            navigate(`/brands/${params.idBrand}/branches/${params.idBranch}/modules/${params.idModule}/${dir}`, {replace: true});
+                        }
+                        else {
+                            navigate(`/brands/${params.idBrand}/branches/${params.idBranch}/${dir}`, {replace: true});
+                        }
                     }       
                 }
             } catch (error) {

@@ -4,7 +4,7 @@ import { DivContainer, DivBody, DivFooter } from "./styles";
 
 export function TurnCard(props) {
     const getMessageToolTip = () => {
-        const message = props.data.username ? `En atención con: ${props.data.username.toUpperCase()}` : 'Libre';
+        const message = props.data.user?.username ? `En atención con: ${props.data.user.username.toUpperCase()}` : 'Libre';
         return <span style={{fontSize: 15}}>{message}</span>;
     }
 

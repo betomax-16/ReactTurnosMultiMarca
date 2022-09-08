@@ -3,8 +3,11 @@ import axios from 'axios';
 export class ModuleService {
     static async get(idBrand, idBranch, idModule) {
         try {
+            const token = localStorage.getItem('token');
+            const secretToken = localStorage.getItem('secret-token');
+
             return await axios.get(`http://${window.location.hostname}:4000/api/v1/brands/${idBrand}/branches/${idBranch}/modules/${idModule}`, {headers:{
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
+                'Authorization': `Bearer ${token ? token : secretToken}`
             }});
         } catch (error) {
             throw error;

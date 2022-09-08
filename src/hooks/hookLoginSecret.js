@@ -16,7 +16,12 @@ export const useLoginSecrete = () => {
             localStorage.setItem('secret-token', res.data.body.token);
             const split = window.location.pathname.split('/');
             const dir = split[split.length - 2];
-            navigate(`/brands/${params.idBrand}/branches/${params.idBranch}/${dir}`);
+            if (params.idModule) {
+                navigate(`/brands/${params.idBrand}/branches/${params.idBranch}/modules/${params.idModule}/${dir}`);
+            }
+            else {
+                navigate(`/brands/${params.idBrand}/branches/${params.idBranch}/${dir}`);
+            }
         } catch (error) {
             if (error.response && error.response.data) {
                 const errors = [];

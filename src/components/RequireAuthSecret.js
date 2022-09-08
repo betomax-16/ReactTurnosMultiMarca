@@ -27,7 +27,12 @@ export function RequireAuthSecret({children}) {
                     else {
                         const split = window.location.pathname.split('/');
                         const dir = split[split.length - 1];
-                        navigate(`/brands/${params.idBrand}/branches/${params.idBranch}/${dir}/login`, {replace: true});
+                        if (params.idModule) {
+                            navigate(`/brands/${params.idBrand}/branches/${params.idBranch}/modules/${params.idModule}/${dir}/login`, {replace: true});
+                        }
+                        else {
+                            navigate(`/brands/${params.idBrand}/branches/${params.idBranch}/${dir}/login`, {replace: true});
+                        }
                     }
                 }
             } catch (error) {
@@ -47,7 +52,12 @@ export function RequireAuthSecret({children}) {
                 localStorage.removeItem('secret-token');
                 const split = window.location.pathname.split('/');
                 const dir = split[split.length - 1];
-                navigate(`/brands/${params.idBrand}/branches/${params.idBranch}/${dir}/login`, {replace: true});
+                if (params.idModule) {
+                    navigate(`/brands/${params.idBrand}/branches/${params.idBranch}/modules/${params.idModule}/${dir}/login`, {replace: true});
+                }
+                else {
+                    navigate(`/brands/${params.idBrand}/branches/${params.idBranch}/${dir}/login`, {replace: true});
+                }
             }
         }
 

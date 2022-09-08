@@ -3,8 +3,11 @@ import axios from 'axios';
 export class UserService {
     static async get(idBrand, idUser) {
         try {
+            const token = localStorage.getItem('token');
+            const secretToken = localStorage.getItem('secret-token');
+
             return await axios.get(`http://${window.location.hostname}:4000/api/v1/brands/${idBrand}/users/${idUser}`, {headers:{
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
+                'Authorization': `Bearer ${token ? token : secretToken}`
             }});
         } catch (error) {
             throw error;
@@ -13,12 +16,15 @@ export class UserService {
 
     static async getAll(idBrand, query) {
         try {
+            const token = localStorage.getItem('token');
+            const secretToken = localStorage.getItem('secret-token');
+
             let url = `http://${window.location.hostname}:4000/api/v1/brands/${idBrand}/users`;
             if (query) {
                 url += query;
             }
             return await axios.get(url, {headers:{
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
+                'Authorization': `Bearer ${token ? token : secretToken}`
             }});
         } catch (error) {
             throw error;
