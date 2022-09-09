@@ -28,6 +28,10 @@ export const DivContainer = styled.div`
         left: 0px;
         opacity: 0.25;
     }
+
+    @media only screen and (min-width: 1700px) {
+        min-width: 185px;
+    } 
 `;
 
 export const DivCardBody = styled.div`    
@@ -65,19 +69,14 @@ export const DivContainerColor = styled.div`
         content: "";
         background-color: ${props => {
             let color = '#fff';
-            switch (props.status) {
-                case 'Libre':
-                    color = '#e7e7e7';
-                    break;
-                case 'Activo':
-                    color = '#136646';
-                    break;
-                case 'Inactivo':
-                    color = '#f76161';
-                    break;
-                default:
-                    break;
+            if (props.status?.user) {
+                color = props.status?.modulo.status ? '#136646' : '#f76161';
             }
+            else {
+                color = '#e7e7e7';
+            }
+
+            return color;
         }};
         position: absolute;
         top: -20px;
@@ -86,6 +85,14 @@ export const DivContainerColor = styled.div`
         width: 110px;
         border-radius: 50%;
     }
+
+    @media only screen and (min-width: 1700px) {
+        flex-direction: column;
+        padding: 15px 30px;
+        height: 100%;
+        align-items: inherit;
+        flex-direction: inherit;
+    } 
 `;
 
 export const DivCardFooter = styled.div`    
@@ -118,7 +125,7 @@ export const DivCardFooterTitle = styled.span`
     font-weight: bold;
     text-align: center;
     font-size: 25px;
-    color: #136646;
+    color: ${props => props.color};
     margin-top: 10px;
 
     @media only screen and (min-width: 1700px) {
@@ -133,7 +140,7 @@ export const DivCardFooterImportant = styled.span`
     margin-left: 25px;
 
     @media only screen and (min-width: 1700px) {
-        color: #136646;
+        color: ${props => props.color};
         font-size: inherit;
         margin-right: 0;
         margin-left: 0;
@@ -156,6 +163,12 @@ export const DivCardFooterTag = styled.span`
                 margin-left: 5px;
             } 
         }
+    }
+
+    &:nth-child(3) DivCardFooterImportant {
+        @media only screen and (min-width: 1700px) {
+            margin-left: 5px;
+        }    
     }
 
     @media only screen and (min-width: 1700px) {

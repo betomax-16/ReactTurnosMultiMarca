@@ -18,25 +18,6 @@ const HtmlTooltip = styled(({ className, ...props }) => (
 
 export function ModuleCard(props) {
 
-//   const getStatusColor = () => {
-//     let color = 'disabled';
-//     switch (props.data.status) {
-//       case 'Libre':
-//         color = 'disabled';
-//         break;
-//       case 'Activo':
-//         color = 'active';
-//         break;
-//       case 'Inactivo':
-//         color = 'inactive';
-//         break;
-//       default:
-//         break;
-//     }
-
-//     return color;
-//   }
-
   const getFullNameUser = () => {
     let fullName = props.data.username;
     if (props.data && props.data.user && props.data.user.name) {
@@ -48,15 +29,15 @@ export function ModuleCard(props) {
 
   const getPrivilages = () => {
     const items = [];
-    if (props.data.mode === 'auto') {
+    if (props.data.modulo.mode === 'auto') {
       let message = 'No';
-      if (props.data.isPrivilegeByArrivalTime) {
+      if (props.data.modulo.hasPrivilegedArrivalTime) {
         message = 'Si';
       }
 
       items.push(<li key={0}>Por tiempo de espera - ({message})</li>);
-      if (props.data.privilages.length) {
-        const auxPrivileges = props.data.privilages.sort(( a, b ) => {
+      if (props.data.privileges.length) {
+        const auxPrivileges = props.data.privileges.sort(( a, b ) => {
           if ( a.privilege < b.privilege ){
             return -1;
           }
@@ -66,7 +47,7 @@ export function ModuleCard(props) {
           return 0;
         });
         auxPrivileges.forEach((element, index) => {
-          items.push(<li key={index + 1}>{element.area} - {element.privilege}</li>);
+          items.push(<li key={index + 1}>{element.area.name} - {element.privilege}</li>);
         });
       }
       else {
@@ -77,25 +58,47 @@ export function ModuleCard(props) {
     return items;
   }
 
+  const getNumber = () => {
+    const words = props.data.modulo.name.split(' ');
+    let num = '#';
+    if (words.length > 1) {
+      num = words[1].trim();
+    }
+
+    return num;
+  }
+
+  const getStatus = () => {
+    let status = '';
+    if (props.data.user) {
+      status = props.data.modulo.status ? 'Activo' : 'Inactivo';
+    }
+    else {
+      status = 'Libre';
+    }
+
+    return status;
+  }
+
   return (<>
     <HtmlTooltip
       title={<>
           <h2>Datos y configuración</h2>
           <h3>Usuario:</h3><em>{getFullNameUser()}</em>
-          <h3>Modo:</h3><em>{props.data.mode.toUpperCase()}</em>
-          {props.data.mode === 'auto' && <><h3>Privilegios:</h3><ul>{getPrivilages()}</ul></>}
+          <h3>Modo:</h3><em>{props.data.modulo.mode.toUpperCase()}</em>
+          {props.data.modulo.mode === 'auto' && <><h3>Privilegios:</h3><ul>{getPrivilages()}</ul></>}
       </>}
     >
       <DivContainer data-tip="Hola" data-for="global" onClick={props.clic}>
-        <DivContainerColor status={props.data.status}>
+        <DivContainerColor status={props.data}>
           <DivCardBody>
-            <span>{props.data.number}</span>          
+            <span>{getNumber()}</span>          
           </DivCardBody>
           <DivCardFooter>
-            <DivCardFooterTitle>Módulo</DivCardFooterTitle>
-            {props.data.username !== undefined && props.data.username !== '' &&
-            <DivCardFooterTag>Usuario: <DivCardFooterImportant>{props.data.username}</DivCardFooterImportant></DivCardFooterTag>}
-            <DivCardFooterTag>Estado: <DivCardFooterImportant>{props.data.status}</DivCardFooterImportant></DivCardFooterTag>
+            <DivCardFooterTitle color={props.color}>Módulo</DivCardFooterTitle>
+            {props.data.user?.username !== undefined && props.data.user?.username !== '' &&
+            <DivCardFooterTag>Usuario: <DivCardFooterImportant color={props.color}>{props.data.user?.username}</DivCardFooterImportant></DivCardFooterTag>}
+            <DivCardFooterTag>Estado: <DivCardFooterImportant color={props.color}>{getStatus()}</DivCardFooterImportant></DivCardFooterTag>
           </DivCardFooter>
         </DivContainerColor>
       </DivContainer>

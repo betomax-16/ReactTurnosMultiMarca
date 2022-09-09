@@ -148,4 +148,15 @@ export class TraceService {
             throw error;
         }
     }
+
+    static async getTrace(idBrand, idBranch, turn) {
+        try {
+            let url = `http://${window.location.hostname}:4000/api/v1/brands/${idBrand}/branches/${idBranch}/turns/${turn}/traces`;
+            return await axios.get(url, {headers:{
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }});
+        } catch (error) {
+            throw error;
+        }
+    }
 }
