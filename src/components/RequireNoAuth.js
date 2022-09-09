@@ -68,6 +68,9 @@ export function RequireNoAuth({children}) {
       case 'recepcionista':
           navigate(`/brands/${params.idBrand}/reception`, {replace: true});
         break;
+      case 'vigia':
+          navigate(`/brands/${params.idBrand}/supervisor`, {replace: true});
+        break;
       default:
           dispatch(clearCurrentUser());
           dispatch(setAlertsList([

@@ -14,6 +14,7 @@ import { LoginSecretCode } from "../components/secretCodeBranch/login/login";
 import { TakeTurn } from "../components/secretCodeBranch/takeTurn/takeTurn";
 import { Screen } from "../components/secretCodeBranch/screen/screen";
 import { Reception } from "../components/superAdmin/Reception/reception";
+import { Supervisor } from "../components/superAdmin/supervisor/supervisor";
 import { TakeTest } from "../components/secretCodeBranch/takeTest/takeTest";
 
 export const routes = [
@@ -98,6 +99,10 @@ export const routes = [
     {
         path: '/brands/:idBrand/reception',
         component: Reception,
+    },
+    {
+        path: '/brands/:idBrand/supervisor',
+        component: Supervisor,
     },
     {
         path: '/brands/:idBrand/panel/*',
