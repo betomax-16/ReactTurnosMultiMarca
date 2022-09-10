@@ -248,9 +248,7 @@ export function useTopMenuReception() {
         localStorage.removeItem('module');
         // const auxStore = {...sesion};
         const res = await ModuleService.update(params.idBrand, sesion.branch._id, sesion.module._id, {idUser: ''});
-        if (!modules.length) {
-            getModules(params.idBrand, sesion.branch._id);   
-        }
+        getModules(params.idBrand, sesion.branch._id);   
         dispatch(setModule(null));
 
         if (socket) {

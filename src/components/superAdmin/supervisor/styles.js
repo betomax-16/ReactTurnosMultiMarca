@@ -225,4 +225,26 @@ export const TabBody = styled.div`
 
 export const Page = styled.div`
     width: 100%;
+    background-color: white;
 `
+
+export const setTableStyles = (color) => {
+    const colorArr = new Gradient()
+    .setColorGradient(color, "ffffff")
+    .setMidpoint(5)
+    .getColors();
+
+    return {
+        '& .MuiDataGrid-columnHeaders': {
+            background: colorArr[0],
+            color: '#fff',
+            borderRadius: "5px 5px 0 0"
+        },
+        '& .MuiDataGrid-row:nth-of-type(even)': {
+            background: colorArr[2]
+        },
+        '& .Mui-checked': {
+            color: colorArr[1]
+        },
+    }
+}

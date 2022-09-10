@@ -1,0 +1,9 @@
+.super-app-theme {
+    background-color: red !important;
+    color: white !important;
+    font-weight: bold;
+}
+
+.super-app-theme:hover {
+    background-color: #f17171 !important;
+}

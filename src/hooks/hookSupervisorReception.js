@@ -20,6 +20,10 @@ export const useSupervisorReception = () => {
     const [turns, setTurns] = useState([]);
     const [turnSelected, setTurnSelected] = useState('');
 
+    const socketResponse = useSelector((state) => state.socketResponse);
+    const [dateState, setDateState] = useState(moment());
+    const [timer, setTimer] = useState(null);
+
     const [
         branches, modules, isBranch,
         selectBranch, selectModule,
@@ -38,6 +42,13 @@ export const useSupervisorReception = () => {
 
     useEffect(() => {
         dispatch(loadCurrentUser());
+        setTimer(setInterval(() => {
+            setDateState(moment());
+        }, 1000));
+
+        return (() => {
+            clearInterval(timer);
+        });
     }, []);// eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
@@ -48,6 +59,120 @@ export const useSupervisorReception = () => {
             }
         }
     }, [user, sesion]);// eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        if (socketResponse && socketResponse.response) {
+            if (socketResponse.response.method === 'stateModule') {
+                const moduleRes = socketResponse.response.info;
+                const rows = [...slaveModules];
+                for (let index = 0; index < rows.length; index++) {
+                    const row = {...rows[index]};
+                    if (row.modulo._id === moduleRes._id) {
+                        row.modulo = moduleRes;
+                        row.user = moduleRes.user;
+                        rows[index] = row;
+                        break;
+                    }
+                }
+
+                setSlaveModules(rows);
+            }
+            else if (socketResponse.response.method === 'newTurn') {
+                const newTurn = socketResponse.response.info;
+                const rows = [...turns];
+
+                rows.push({
+                    id: newTurn.turn,
+                    turn: newTurn.turn,
+                    area: newTurn.area.name,
+                    sucursal: newTurn.branch.name,
+                    state: newTurn.state.name,
+                    creationDate: moment(newTurn.startDate).format("YYYY-MM-DD HH:mm:ss")
+                });
+    
+                setTurns(rows);
+            }
+            else if (socketResponse.response.method === 'callTurn') {
+                const callTurn = socketResponse.response.info;
+                const rows = [...turns];
+                
+                for (let index = 0; index < rows.length; index++) {
+                    const row = {...rows[index]};
+                    if (row.turn === callTurn.turn) {
+                        rows[index] = {
+                            id: callTurn.turn,
+                            turn: callTurn.turn,
+                            area: callTurn.area.name,
+                            sucursal: callTurn.branch.name,
+                            state: callTurn.state.name,
+                            creationDate: moment(callTurn.startDate).format("YYYY-MM-DD HH:mm:ss")
+                        }
+                        break;
+                    }
+                }
+
+                setTurns(rows);
+            }
+            else if (socketResponse.response.method === 'cancelTurn') {
+                const cancelTurn = socketResponse.response.info;
+                const rows = turns.filter(t => t.turn !== cancelTurn.turn);
+                setTurns(rows);
+            }
+            else if (socketResponse.response.method === 'finishTurnReception') {
+                const finishTurn = socketResponse.response.info;
+                const rows = turns.filter(t => t.turn !== finishTurn.turn);
+                setTurns(rows);
+            }
+            else if (socketResponse.response.method === 'callTurnTest') {
+                const callTurn = socketResponse.response.info;
+                const rows = [...turns];
+                
+                for (let index = 0; index < rows.length; index++) {
+                    const row = {...rows[index]};
+                    if (row.turn === callTurn.turn) {
+                        rows[index] = {
+                            id: callTurn.turn,
+                            turn: callTurn.turn,
+                            area: callTurn.area.name,
+                            sucursal: callTurn.branch.name,
+                            state: callTurn.state.name,
+                            creationDate: moment(callTurn.startDate).format("YYYY-MM-DD HH:mm:ss")
+                        }
+                        break;
+                    }
+                }
+
+                setTurns(rows);
+            }
+            else if (socketResponse.response.method === 'cancelTurnTest') {
+                const cancelTurn = socketResponse.response.info;
+                const rows = turns.filter(t => t.turn !== cancelTurn.turn);
+                setTurns(rows);
+            }
+            else if (socketResponse.response.method === 'finishTurnTest') {
+                const finishTurn = socketResponse.response.info;
+                const rows = turns.filter(t => t.turn !== finishTurn.turn);
+                setTurns(rows);
+            }
+        }
+    }, [socketResponse]);// eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        if (sesion && sesion.branch?.timeLimit) { 
+            const copyTurns = [...turns]; 
+            for (let index = 0; index < copyTurns.length; index++) {
+                const turn = {...copyTurns[index]};
+                if (turn.finalDate === undefined && 
+                    (turn.state === 'espera' || turn.state === 'espera toma' ) &&
+                    moment(turn.creationDate).add(sesion.branch?.timeLimit, 'minutes') < moment()) {
+                        turn.limit = true;
+                        copyTurns[index] = turn;
+                }
+            }
+
+            setTurns(copyTurns);
+        }
+    }, [dateState]);// eslint-disable-line react-hooks/exhaustive-deps
 
     const getSalves = async (idBrand, idBranch, idModule) => {
         try {

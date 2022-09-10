@@ -3,22 +3,21 @@ import { TopMenu } from "../Reception/TopMenu/topMenu";
 import { useSupervisorReception } from "../../../hooks/hookSupervisorReception";
 import { DivContainer, DivContentGreeting, GreetingTitle, DivContent,
         DivUp, UpTitle, DivDown, DownTitle, TabContainer, TabButtons,
-        Tab, TabBody, UpList, Page
+        Tab, TabBody, UpList, Page, setTableStyles
      } from "./styles";
 import { ModuleCard } from "./moduleCard/moduleCard";
 import { DataGrid, esES } from '@mui/x-data-grid';
+import "./styles.css";
 
 const columnsTurns = [
     { field: 'turn', headerName: 'Turno', flex: 1, mytype: 'string' },
     { field: 'area', headerName: 'Area', flex: 1, mytype: 'string' },
-    { field: 'sucursal', headerName: 'Sucursal', flex: 1, mytype: 'string' },
     { field: 'state', headerName: 'Estado', flex: 1, mytype: 'string' },
     { field: 'creationDate', headerName: 'Fecha creación', flex: 1, mytype: 'date' }
 ];
 
 const columnsTrace = [
     { field: 'turn', headerName: 'Turno', flex: 1, mytype: 'string' },
-    { field: 'sucursal', headerName: 'Sucursal', flex: 1, mytype: 'string' },
     { field: 'state', headerName: 'Estado', flex: 1, mytype: 'string' },
     { field: 'username', headerName: 'Atendido por', flex: 1, mytype: 'string' },
     { field: 'startDate', headerName: 'Fecha inicio', flex: 1, mytype: 'date' },
@@ -87,7 +86,7 @@ export function Supervisor() {
                             </TabButtons>
                             <TabBody>
                                 {tab === 0 ? <Page>
-                                    <DataGrid
+                                    <DataGrid sx={setTableStyles(brand && brand.color ? brand.color : BACKGROUDCOLOR)}
                                         localeText={esES.components.MuiDataGrid.defaultProps.localeText}
                                         rows={turns}
                                         columns={columnsTurns}
@@ -99,12 +98,12 @@ export function Supervisor() {
                                         }}
                                         getRowClassName={(params) => {
                                             // console.log(params);
-                                            // return params.row.limit && (params.row.state === 'espera' || params.row.state === 'espera toma') ? `super-app-theme ` : '';
+                                            return params.row.limit && (params.row.state === 'espera' || params.row.state === 'espera toma') ? `super-app-theme ` : '';
                                         }}
                                     />
                                 </Page> :
                                 <Page>
-                                    <DataGrid
+                                    <DataGrid sx={setTableStyles(brand && brand.color ? brand.color : BACKGROUDCOLOR)}
                                         localeText={esES.components.MuiDataGrid.defaultProps.localeText}
                                         rows={trace}
                                         columns={columnsTrace}
