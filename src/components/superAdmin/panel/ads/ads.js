@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useContext } from "react";
 import { Navigate, useParams } from "react-router-dom";
 import { useAd } from "../../../../hooks/hookAd";
 import { useBrand } from "../../../../hooks/hookBrand";
@@ -8,9 +8,11 @@ import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
+import AppContext from "../../../../context/app-context";
 
 export function Ad() {
     const brandSorage = JSON.parse(localStorage.getItem('brand'));
+    const { socket } = useContext(AppContext);
     const [brand, getBrands, brands] = useBrand();
     const params = useParams();
     const [
@@ -56,7 +58,7 @@ export function Ad() {
                     </Select>
                 </FormControl>
             </>}
-            <FilesDragAndDrop idBrand={idBrand} onUpdateAd={onUpdateAd} onDeleteAd={onDeleteAd} onUpload={onUpload} count={12} formats={['.jpeg', '.jpg', '.png']} ads={ads}>
+            <FilesDragAndDrop idBrand={idBrand} socket={socket} onUpdateAd={onUpdateAd} onDeleteAd={onDeleteAd} onUpload={onUpload} count={12} formats={['.jpeg', '.jpg', '.png']} ads={ads}>
                 <MessageTitle>Arrastra tus archivos</MessageTitle>
             </FilesDragAndDrop>
         </DivContainer>

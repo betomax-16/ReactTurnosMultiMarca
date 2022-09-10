@@ -17,7 +17,7 @@ export function Screen() {
                 <TV show={callTurn.state} title="tele" src="https://pluto.tv/es/live-tv/pluto-tv-cine-estelar-1"></TV>
                 {callTurn.state && <CurrentTurn turn={callTurn.data?.turn} ubication={callTurn.data?.ubication} wave='down' playSound/>}
             </> :<>
-                <TurnList hide={callTurn.state} color={brand && brand.color ? brand.color : '#5a8f80'} turn={callTurn.data?.turn} ubication={callTurn.data?.ubication} showAds/> :
+                <TurnList hide={callTurn.state} color={brand && brand.color ? brand.color : '#5a8f80'} turn={callTurn.data?.turn} ubication={callTurn.data?.ubication} showAds/>
                 <CurrentTurn hide={!callTurn.state} turn={callTurn.data?.turn} ubication={callTurn.data?.ubication} wave='down' playSound/>
             </>}
         </DivContainer>

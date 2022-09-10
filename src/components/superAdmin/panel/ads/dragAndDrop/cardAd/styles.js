@@ -31,6 +31,7 @@ export const DivCardImage = styled.div`
     justify-content: center;
     align-items: center;
     height: 100%;
+    overflow: hidden;
     background-color: #ededed;
     border-radius: 5px 5px 0 0;
 `;

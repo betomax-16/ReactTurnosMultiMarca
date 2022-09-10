@@ -1,11 +1,13 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { useDispatch } from 'react-redux';
 import { setAlertsList } from '../redux/splices/alertSlice';
 import { AdService } from "../services/ad";
+import AppContext from "../context/app-context";
 
 export const useAd = () => {
     const [ads, setAds] = useState([]);
     const [idBrand, setIdBrand] = useState('');
+    const { socket } = useContext(AppContext);
     const dispatch = useDispatch();
 
     const getImages = async (idBrand) => {
@@ -30,7 +32,20 @@ export const useAd = () => {
         }
     }
 
-    const onUpload = async (idBrand, files) => {
+    const emitChangeAd = (idBrand) => {
+        if (socket) {
+            const data = JSON.stringify({
+                acction: 'emit',
+                method: 'changeAd',
+                data: {
+                    idBrand: idBrand
+                }
+            });
+            socket.send(data); 
+        }
+    }
+
+    const onUpload = async (idBrand, files, socket) => {
         try {
             const bodyFormData = new FormData();
             for (let index = 0; index < files.length; index++) {
@@ -42,9 +57,16 @@ export const useAd = () => {
 
             if (res.status === 201) {
                 getImages(idBrand);
-                // if (props.socket) {
-                //     props.socket.emit('updateImages', {});  
-                // }
+                if (socket) {
+                    const data = JSON.stringify({
+                        acction: 'emit',
+                        method: 'changeAd',
+                        data: {
+                            idBrand: idBrand
+                        }
+                    });
+                    socket.send(data); 
+                }
             }
             else {
                 dispatch(setAlertsList([
@@ -73,9 +95,7 @@ export const useAd = () => {
 
             if (res.status === 204) {
                 getImages(idBrand);
-                // if (props.socket) {
-                //     props.socket.emit('updateImages', {});  
-                // }
+                emitChangeAd(idBrand);
             }
             else {
                 dispatch(setAlertsList([
@@ -114,9 +134,7 @@ export const useAd = () => {
                 }
 
                 setAds(auxAds);
-                // if (props.socket) {
-                //     props.socket.emit('updateImages', {});  
-                // }
+                emitChangeAd(idBrand);
             }
             else {
                 dispatch(setAlertsList([

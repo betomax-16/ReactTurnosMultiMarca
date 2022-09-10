@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import { CardAd } from "./cardAd/cardAd";
 import { DivContainer, DivGrid } from "./styles";
 
-export function FilesDragAndDrop({idBrand, onUpdateAd, onDeleteAd, onUpload, children, count, formats, ads}) {
+export function FilesDragAndDrop({idBrand, socket, onUpdateAd, onDeleteAd, onUpload, children, count, formats, ads}) {
     const drop = useRef(null);
     const dispatch = useDispatch();
 
@@ -14,25 +14,25 @@ export function FilesDragAndDrop({idBrand, onUpdateAd, onDeleteAd, onUpload, chi
         return () => {
             if (ref) {
                 ref.removeEventListener('dragover', handleDragOver);
-                ref.removeEventListener('drop', (e) => {handleDrop(e, idBrand)});
+                ref.removeEventListener('drop', (e) => {handleDrop(e, idBrand, socket)});
             }
         };
     }, []);// eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
-        if (idBrand !== '') {
+        if (idBrand !== '' && socket) {
             const ref = drop.current;
             ref.addEventListener('dragover', handleDragOver);
-            ref.addEventListener('drop', (e) => {handleDrop(e, idBrand)});
+            ref.addEventListener('drop', (e) => {handleDrop(e, idBrand, socket)});
         }
-    }, [idBrand]);// eslint-disable-line react-hooks/exhaustive-deps
+    }, [idBrand, socket]);// eslint-disable-line react-hooks/exhaustive-deps
 
     const handleDragOver = (e) => {
         e.preventDefault();
         e.stopPropagation();
     };
     
-    const handleDrop = (e, idBrand) => {
+    const handleDrop = (e, idBrand, socket) => {
         e.preventDefault();
         e.stopPropagation();
         // this is required to convert FileList object to array
@@ -55,7 +55,7 @@ export function FilesDragAndDrop({idBrand, onUpdateAd, onDeleteAd, onUpload, chi
         }
 
         if (files && files.length) {
-            onUpload(idBrand, files);
+            onUpload(idBrand, files, socket);
         }
     };
 

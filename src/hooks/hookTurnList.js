@@ -205,6 +205,9 @@ export const useTurnList = () => {
                 const subDataSort = dataSort.length > 3 ? dataSort.slice(dataSort.length-3) : dataSort;
                 setLastTurns(subDataSort);
             }
+            else if (socketResponse.response.method === 'changeAd') {
+                getAds();
+            }
         }
     }, [socketResponse]);// eslint-disable-line react-hooks/exhaustive-deps
 
