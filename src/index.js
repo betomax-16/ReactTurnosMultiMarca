@@ -7,13 +7,17 @@ import { Provider } from "react-redux";
 import reportWebVitals from './reportWebVitals';
 import { BrowserRouter } from "react-router-dom";
 import AppState from "./context/app-state";
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <BrowserRouter>
     <AppState>
       <Provider store={store}>
-        <App />
+        <LocalizationProvider dateAdapter={AdapterMoment}>
+          <App />
+        </LocalizationProvider>
       </Provider>
     </AppState>
   </BrowserRouter>

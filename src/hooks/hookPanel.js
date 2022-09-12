@@ -1,4 +1,5 @@
 import { loadCurrentUser } from "../redux/splices/currentUserSlice";
+import { setAlertsList } from '../redux/splices/alertSlice';
 import { useEffect, useState, useContext } from "react";
 import { useDispatch } from 'react-redux';
 import { setSocketResponse } from "../redux/splices/socketResponseSlice";
@@ -11,7 +12,6 @@ export function usePanel() {
     const dispatch = useDispatch();
 
     useEffect(() => {
-        loadCurrentUser();
         const handleFocus = () => {
             // console.log('Tab has focus');
             setTabHasFocus(true);
@@ -21,14 +21,32 @@ export function usePanel() {
             // console.log('Tab lost focus');
             setTabHasFocus(false);
         };
-    
-        window.addEventListener('focus', handleFocus);
-        window.addEventListener('blur', handleBlur);
-
-        return () => {
-            window.removeEventListener('focus', handleFocus);
-            window.removeEventListener('blur', handleBlur);
-        };
+        
+        try {
+            loadCurrentUser();
+        
+            window.addEventListener('focus', handleFocus);
+            window.addEventListener('blur', handleBlur);
+        } catch (error) {
+            if (error.response && error.response.data) {
+                const errors = [];
+                error.response.data.body.errors.forEach(e => {
+                    errors.push({message: e.msg, visible: true, severity: 'error'});
+                });
+                dispatch(setAlertsList(errors))
+            }
+            else {
+                dispatch(setAlertsList([
+                    {message: error.message, visible: true, severity: 'error'}
+                ]))
+            }
+        }
+        finally {
+            return () => {
+                window.removeEventListener('focus', handleFocus);
+                window.removeEventListener('blur', handleBlur);
+            };
+        }
     }, []);// eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
