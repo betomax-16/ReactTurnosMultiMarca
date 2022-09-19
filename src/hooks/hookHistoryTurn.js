@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useDispatch } from 'react-redux';
 import { setAlertsList } from '../redux/splices/alertSlice';
 import { BranchService } from "../services/branch";
-import { TraceService } from "../services/trace";
+import { TraceHisotryService } from "../services/traceHistory";
 import { useParams } from "react-router-dom";
 import moment from "moment";
 
@@ -24,7 +24,7 @@ export const useHistoryTurn = () => {
 
     useEffect(() => {
         if (idBranchSelected !== '') {
-            // getTurns(params.idBrand, idBranchSelected);   
+            getTurns(params.idBrand, idBranchSelected, date.format('YYYY-MM-DD'));   
         }
     }, [idBranchSelected]);// eslint-disable-line react-hooks/exhaustive-deps
 
@@ -61,9 +61,9 @@ export const useHistoryTurn = () => {
         }
     }
 
-    const getTurns = async (idBrand, idBranch) => {
+    const getTurns = async (idBrand, idBranch, date) => {
         try {
-            const res = await TraceService.getTurns(idBrand, idBranch);
+            const res = await TraceHisotryService.getTurns(idBrand, idBranch, date);
             const rows = [];
             res.data.body.forEach(row => {
                 rows.push({
@@ -93,9 +93,9 @@ export const useHistoryTurn = () => {
         }
     }
 
-    const getTrace = async (idBrand, idBranch, turn) => {
+    const getTrace = async (idBrand, idBranch, date, turn) => {
         try {
-            const res = await TraceService.getTrace(idBrand, idBranch, turn)
+            const res = await TraceHisotryService.getTrace(idBrand, idBranch, date, turn)
             const rows = [];
             res.data.body.forEach(row => {
                 const aux = {
@@ -142,10 +142,10 @@ export const useHistoryTurn = () => {
     const handlerChangeTab = (index) => {
         setTab(index);
         if (index === 0 && idBranchSelected !== '') {
-            // getTurns(params.idBrand, idBranchSelected);
+            getTurns(params.idBrand, idBranchSelected, date.format('YYYY-MM-DD'));
         }
         else if (index === 1 && idBranchSelected !== '' && turnSelected !== '') {
-            // getTrace(params.idBrand, idBranchSelected, turnSelected);
+            getTrace(params.idBrand, idBranchSelected, date.format('YYYY-MM-DD'), turnSelected);
         }        
     }
 
@@ -154,9 +154,9 @@ export const useHistoryTurn = () => {
     };
 
     const handlerClickSearch = () => {
-        console.log('idBranchSelected', idBranchSelected);
-        console.log('date', date);
-        // getTurns(params.idBrand, idBranchSelected);   
+        // console.log('idBranchSelected', idBranchSelected);
+        // console.log('date', date);
+        getTurns(params.idBrand, idBranchSelected, date.format('YYYY-MM-DD'));   
     }
 
     return [
