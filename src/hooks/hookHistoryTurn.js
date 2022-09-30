@@ -148,7 +148,7 @@ export const useHistoryTurn = () => {
             getTrace(params.idBrand, idBranchSelected, date.format('YYYY-MM-DD'), turnSelected);
         }        
     }
-
+ 
     const handlerChangeDate = (newDate) => {
         setDate(newDate);
     };

@@ -98,7 +98,7 @@ export function useScreen() {
     }, [tabHasFocus])// eslint-disable-line react-hooks/exhaustive-deps
     
     const connectSocket = () => {
-        const client = new w3cwebsocket(`ws://${window.location.hostname}:4000/`);
+        let client = new w3cwebsocket(`ws://${window.location.hostname}:4000/`);
         client.onopen = function() {
             if (client.readyState === client.OPEN) {
                 setSocket(client);   
@@ -111,6 +111,29 @@ export function useScreen() {
                 dispatch(setSocketResponse(response));
             }
         };
+
+        client.onclose = function(e) {
+            setTimeout(() => {
+                client = new w3cwebsocket(`ws://${window.location.hostname}:4000/?idBranch=${params.idBranch}`);
+                if (client.readyState === client.OPEN) {
+                    setSocket(client);   
+                }
+            }, 1000);
+        }
+
+        client.onerror = function(err) {
+            if (client) {
+                client.close();    
+            }
+            else {
+                setTimeout(() => {
+                    client = new w3cwebsocket(`ws://${window.location.hostname}:4000/?idBranch=${params.idBranch}`);
+                    if (client.readyState === client.OPEN) {
+                        setSocket(client);   
+                    }
+                }, 1000);
+            }
+        }
     }
 
     const getBrand = async () => {

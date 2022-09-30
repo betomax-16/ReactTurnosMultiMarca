@@ -33,7 +33,8 @@ export const DivAds = styled.div`
 `;
 
 export const Ad = styled.img`    
-    /* width: 100%; */
+    height: 100%;
+    width: 100%;
     padding: 25px;
     box-sizing: border-box;
     overflow: hidden;
