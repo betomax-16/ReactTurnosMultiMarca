@@ -69,7 +69,7 @@ export const useTakeTurn = () => {
     // }, [socket]);
 
     const connectSocketPrint = () => {
-        let client = new w3cwebsocket(`ws://${window.location.hostname}:4000/?idBranch=${params.idBranch}`);
+        let client = new w3cwebsocket(`ws://${window.location.hostname}:4000/`);
         client.onopen = function() {
             if (client.readyState === client.OPEN) {
                 setSocket(client);   
@@ -78,7 +78,7 @@ export const useTakeTurn = () => {
 
         client.onclose = function(e) {
             setTimeout(() => {
-                client = new w3cwebsocket(`ws://${window.location.hostname}:4000/?idBranch=${params.idBranch}`);
+                client = new w3cwebsocket(`ws://${window.location.hostname}:4000/`);
                 if (client.readyState === client.OPEN) {
                     setSocket(client);   
                 }
@@ -91,7 +91,7 @@ export const useTakeTurn = () => {
             }
             else {
                 setTimeout(() => {
-                    client = new w3cwebsocket(`ws://${window.location.hostname}:4000/?idBranch=${params.idBranch}`);
+                    client = new w3cwebsocket(`ws://${window.location.hostname}:4000/`);
                     if (client.readyState === client.OPEN) {
                         setSocket(client);   
                     }

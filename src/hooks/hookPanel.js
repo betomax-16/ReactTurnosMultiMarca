@@ -79,7 +79,7 @@ export function usePanel() {
 
         client.onclose = function(e) {
             setTimeout(() => {
-                client = new w3cwebsocket(`ws://${window.location.hostname}:4000/?idBranch=${params.idBranch}`);
+                client = new w3cwebsocket(`ws://${window.location.hostname}:4000/`);
                 if (client.readyState === client.OPEN) {
                     setSocket(client);   
                 }
@@ -92,7 +92,7 @@ export function usePanel() {
             }
             else {
                 setTimeout(() => {
-                    client = new w3cwebsocket(`ws://${window.location.hostname}:4000/?idBranch=${params.idBranch}`);
+                    client = new w3cwebsocket(`ws://${window.location.hostname}:4000/`);
                     if (client.readyState === client.OPEN) {
                         setSocket(client);   
                     }
